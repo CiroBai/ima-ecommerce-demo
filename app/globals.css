@@ -583,7 +583,7 @@ h1, h2, h3, .font-display {
   padding: 48px 40px 40px;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 /* Hero 大型光球背景 */
 .home-hero-banner::after {
