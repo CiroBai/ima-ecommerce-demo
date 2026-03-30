@@ -20,6 +20,8 @@ const SCENES = [
 
 const RATIOS = ["1:1", "9:16", "16:9", "4:5"];
 
+const BATCH_COUNTS = [1, 3, 5, 10];
+
 const OUTPUT_TYPES = [
   { id: "商品图片", label: "🖼️ 商品图片" },
   { id: "广告视频", label: "🎬 广告视频" },
@@ -36,6 +38,13 @@ const QUICK_ACTIONS: Record<string, string> = {
   aplus: "亚马逊 A+ 内容方案：\n1. 品牌横幅 — 品牌故事\n2. 卖点矩阵 — 3-4个核心卖点\n3. 对比图表 — 与竞品对比\n4. 场景图集 — 3个使用场景\n5. FAQ / 规格模块",
   batch: "完整上架套件 (7+1)：\n1. 主图（白底，1:1）\n2. 卖点信息图\n3. 场景图 ×2\n4. 细节 / 特写\n5. 多角度（3个视角）\n6. 尺寸参考\n7. 包装内容物\n+ 15秒商品视频\n\n自动适配：亚马逊 1:1 + TikTok 9:16 + IG 4:5",
 };
+
+interface BatchItem {
+  index: number;
+  status: "pending" | "generating" | "done" | "error";
+  resultUrl?: string;
+  error?: string;
+}
 
 export function WorkspaceContent() {
   const params = useSearchParams();
@@ -55,6 +64,12 @@ export function WorkspaceContent() {
   const [genState, setGenState] = useState<GenerationState>({ status: "idle" });
   const [selectedSlot, setSelectedSlot] = useState<number | undefined>();
 
+  // Batch state
+  const [batchCount, setBatchCount] = useState(1);
+  const [batchItems, setBatchItems] = useState<BatchItem[]>([]);
+  const [isBatching, setIsBatching] = useState(false);
+  const [batchProgress, setBatchProgress] = useState(0);
+
   const taskType = uploadedUrl ? "image_to_image" as const : "text_to_image" as const;
   const inputImages = uploadedUrl ? [uploadedUrl] : [];
 
@@ -70,8 +85,83 @@ export function WorkspaceContent() {
 
   const isAmazon = platform === "亚马逊";
 
+  const handleBatchGenerate = useCallback(async () => {
+    if (!prompt.trim() || batchCount <= 1) return;
+    setIsBatching(true);
+    setBatchProgress(0);
+
+    const items: BatchItem[] = Array.from({ length: batchCount }, (_, i) => ({
+      index: i,
+      status: "pending",
+    }));
+    setBatchItems(items);
+
+    for (let i = 0; i < batchCount; i++) {
+      setBatchItems(prev => prev.map((item, idx) =>
+        idx === i ? { ...item, status: "generating" } : item
+      ));
+
+      try {
+        const resp = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, modelId, taskType, inputImages }),
+        });
+        const data = await resp.json();
+
+        if (!resp.ok) throw new Error(data.error || "Failed");
+
+        // Simulate polling wait
+        await new Promise((r) => setTimeout(r, 3000));
+
+        // Poll once
+        const pollResp = await fetch("/api/poll", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ taskId: data.taskId }),
+        });
+        const pollData = await pollResp.json();
+
+        if (pollData.done && !pollData.error) {
+          setBatchItems(prev => prev.map((item, idx) =>
+            idx === i ? { ...item, status: "done", resultUrl: pollData.result?.url } : item
+          ));
+        } else {
+          setBatchItems(prev => prev.map((item, idx) =>
+            idx === i ? { ...item, status: "done", resultUrl: undefined } : item
+          ));
+        }
+      } catch {
+        setBatchItems(prev => prev.map((item, idx) =>
+          idx === i ? { ...item, status: "error", error: "生成失败" } : item
+        ));
+      }
+
+      setBatchProgress(Math.round(((i + 1) / batchCount) * 100));
+    }
+
+    setIsBatching(false);
+  }, [prompt, modelId, taskType, inputImages, batchCount]);
+
+  const handleDownloadAll = useCallback(() => {
+    batchItems.forEach((item, i) => {
+      if (item.resultUrl) {
+        const a = document.createElement("a");
+        a.href = item.resultUrl;
+        a.download = `ima-batch-${i + 1}.jpg`;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }, [batchItems]);
+
+  const doneItems = batchItems.filter(item => item.status === "done" && item.resultUrl);
+
   return (
-    <div className="min-h-screen bg-[#09090b] text-[#fafafa]">
+    <div className="text-[#fafafa]">
       <Toaster position="top-right" richColors />
 
       {/* Top Bar */}
@@ -87,7 +177,6 @@ export function WorkspaceContent() {
           <span className="text-xs text-zinc-500">由 IMA AI 驱动 · <span className="text-orange-500">SeeDream + Nano Banana</span></span>
         </div>
         <div className="flex items-center gap-2">
-          {/* Model Selector */}
           <select
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
@@ -138,7 +227,7 @@ export function WorkspaceContent() {
           </div>
         </div>
 
-        {/* Config Row 2: Scene + Ratio */}
+        {/* Config Row 2: Scene + Ratio + Batch Count */}
         <div className="flex flex-wrap gap-6 mb-4">
           <div className="flex-1 min-w-[200px]">
             <div className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider mb-2">📍 场景</div>
@@ -164,6 +253,26 @@ export function WorkspaceContent() {
                   onClick={() => setRatio(r)}
                 >
                   {r}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider mb-2">
+              📊 批量数量
+            </div>
+            <div className="flex gap-1.5">
+              {BATCH_COUNTS.map((c) => (
+                <button
+                  key={c}
+                  className={`cfg-opt ${batchCount === c ? "active" : ""}`}
+                  onClick={() => {
+                    setBatchCount(c);
+                    setBatchItems([]);
+                    setBatchProgress(0);
+                  }}
+                >
+                  {c}张
                 </button>
               ))}
             </div>
@@ -197,7 +306,6 @@ export function WorkspaceContent() {
 
         {/* Creation Area */}
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4 mb-4">
-          {/* Upload */}
           <div>
             <FileUpload onUpload={handleUpload} uploadedUrl={uploadedUrl} />
             {uploadedUrl && (
@@ -207,7 +315,6 @@ export function WorkspaceContent() {
             )}
           </div>
 
-          {/* Prompt + Generate */}
           <div className="flex flex-col gap-2">
             <div className="pbox">
               <textarea
@@ -219,16 +326,37 @@ export function WorkspaceContent() {
               <div className="flex items-center gap-2 pt-2 border-t border-zinc-800 flex-wrap">
                 <span className="text-[10px] text-zinc-500">
                   {uploadedUrl ? "🖼️ 图生图" : "✏️ 文生图"} · {MODELS.find(m => m.id === modelId)?.name}
+                  {batchCount > 1 && (
+                    <span className="ml-2 text-orange-400 font-semibold">· 批量 {batchCount} 张</span>
+                  )}
                 </span>
-                <div className="ml-auto">
-                  <GenerateButton
-                    prompt={prompt}
-                    modelId={modelId}
-                    taskType={taskType}
-                    inputImages={inputImages}
-                    onStateChange={setGenState}
-                    disabled={!prompt.trim()}
-                  />
+                <div className="ml-auto flex gap-2">
+                  {batchCount > 1 ? (
+                    <button
+                      className="gen-btn"
+                      onClick={handleBatchGenerate}
+                      disabled={!prompt.trim() || isBatching}
+                      style={{ background: "linear-gradient(135deg, #f97316, #a855f7)" }}
+                    >
+                      {isBatching ? (
+                        <>
+                          <span className="inline-block w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-1" />
+                          批量生成中 {batchProgress}%...
+                        </>
+                      ) : (
+                        `⚡ 批量生成 ${batchCount} 张`
+                      )}
+                    </button>
+                  ) : (
+                    <GenerateButton
+                      prompt={prompt}
+                      modelId={modelId}
+                      taskType={taskType}
+                      inputImages={inputImages}
+                      onStateChange={setGenState}
+                      disabled={!prompt.trim()}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -254,8 +382,115 @@ export function WorkspaceContent() {
           })}
         </div>
 
-        {/* Result Display */}
-        <ResultDisplay state={genState} />
+        {/* Single Generation Result */}
+        {batchCount === 1 && <ResultDisplay state={genState} />}
+
+        {/* Batch Progress */}
+        {batchCount > 1 && (isBatching || batchItems.length > 0) && (
+          <div className="mt-4">
+            {/* Progress Bar */}
+            {isBatching && (
+              <div className="mb-4 p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold">
+                    批量生成中... {batchItems.filter(i => i.status === "done" || i.status === "error").length}/{batchCount}
+                  </span>
+                  <span className="text-xs text-zinc-500">{batchProgress}%</span>
+                </div>
+                <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${batchProgress}%`,
+                      background: "linear-gradient(90deg, #f97316, #a855f7)"
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Result Grid */}
+            {batchItems.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold">
+                    🖼️ 批量结果
+                    {!isBatching && <span className="ml-2 text-zinc-500 text-xs">({doneItems.length}/{batchCount} 张成功)</span>}
+                  </h3>
+                  {doneItems.length > 0 && !isBatching && (
+                    <button
+                      onClick={handleDownloadAll}
+                      className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition"
+                    >
+                      ⬇ 全部下载 ({doneItems.length} 张)
+                    </button>
+                  )}
+                </div>
+                <div
+                  className="grid gap-3"
+                  style={{
+                    gridTemplateColumns: `repeat(${Math.min(batchCount, 5)}, 1fr)`
+                  }}
+                >
+                  {batchItems.map((item) => (
+                    <div
+                      key={item.index}
+                      className="relative rounded-xl overflow-hidden border border-zinc-800"
+                      style={{ aspectRatio: "1/1", background: "#161618" }}
+                    >
+                      {item.status === "pending" && (
+                        <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
+                          {item.index + 1}
+                        </div>
+                      )}
+                      {item.status === "generating" && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                          <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-[10px] text-zinc-500">生成中...</span>
+                        </div>
+                      )}
+                      {item.status === "done" && item.resultUrl && (
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={item.resultUrl}
+                            alt={`结果 ${item.index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 p-2 flex justify-end"
+                            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)" }}>
+                            <a
+                              href={item.resultUrl}
+                              download={`ima-batch-${item.index + 1}.jpg`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-1 text-[9px] font-semibold rounded bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 transition"
+                            >
+                              ⬇
+                            </a>
+                          </div>
+                        </>
+                      )}
+                      {item.status === "done" && !item.resultUrl && (
+                        <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
+                          <span className="text-[10px]">等待结果...</span>
+                        </div>
+                      )}
+                      {item.status === "error" && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-[10px] text-red-400">失败</span>
+                        </div>
+                      )}
+                      <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-zinc-900/80 flex items-center justify-center text-[8px] text-zinc-400">
+                        {item.index + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Multi-Platform Preview */}
         <div className="mt-6 p-4 bg-zinc-900 border border-zinc-800 rounded-xl">

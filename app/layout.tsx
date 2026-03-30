@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { SidebarNav } from "@/components/sidebar-nav";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "IMA Studio — AI 电商创意套件",
-  description: "从商品链接到完整上架素材，图片一键生成",
+  title: "IMA Studio — AI 电商素材工厂",
+  description: "输入商品链接，一键生成全套带货素材",
 };
 
 export default function RootLayout({
@@ -18,7 +19,12 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className={inter.className}>
-        {children}
+        <div className="app-layout">
+          <SidebarNav />
+          <main className="main-area">
+            {children}
+          </main>
+        </div>
         <Toaster
           position="top-right"
           theme="dark"
