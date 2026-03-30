@@ -160,12 +160,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero Banner */}
-      <div style={{
-        background: "linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(168,85,247,0.08) 50%, rgba(59,130,246,0.08) 100%)",
-        borderBottom: "1px solid var(--bd)",
-        padding: "48px 40px 40px",
-        textAlign: "center",
-      }} className="fi">
+      <div className="fi home-hero-banner">
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "4px 14px", borderRadius: 20,
@@ -174,7 +169,7 @@ export default function HomePage() {
         }}>
           🚀 由 SeeDream 4.5 + Midjourney + Nano Banana Pro 驱动
         </div>
-        <h1 style={{ fontSize: 36, fontWeight: 800, marginBottom: 12, letterSpacing: -1 }}>
+        <h1 className="home-hero-title">
           AI 电商素材工厂
         </h1>
         <p style={{ fontSize: 16, color: "var(--t2)", marginBottom: 8 }}>
@@ -185,13 +180,7 @@ export default function HomePage() {
         </p>
 
         {/* Three Core Entry Cards */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 16,
-          maxWidth: 960,
-          margin: "0 auto",
-        }}>
+        <div className="home-entry-grid">
           {CORE_ENTRIES.map((entry) => (
             <div
               key={entry.title}
@@ -265,12 +254,12 @@ export default function HomePage() {
       </div>
 
       {/* More Tools Section */}
-      <div style={{ padding: "32px 40px 20px", borderBottom: "1px solid var(--bd)" }}>
+      <div className="home-more-tools-section">
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700 }}>🛠 更多工具</h2>
           <span style={{ fontSize: 11, color: "var(--t3)" }}>AI 文案 · 批量任务 · 模板市场</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+        <div className="grid-4 home-tools-grid">
           {MORE_TOOLS.map((item) => (
             <div
               key={item.label}
@@ -301,7 +290,7 @@ export default function HomePage() {
       </div>
 
       {/* Category Quick Access */}
-      <div style={{ padding: "32px 40px 20px" }}>
+      <div className="home-cat-section">
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700 }}>📂 按品类生成</h2>
           <span style={{ fontSize: 11, color: "var(--t3)" }}>选择品类，直接进入工作台</span>

@@ -174,7 +174,7 @@ export default function CarouselPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 40px" }}>
+      <div className="product-page-wrap">
         <div className="fi">
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🎠 轮播图设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
@@ -183,7 +183,7 @@ export default function CarouselPage() {
         </div>
 
         {/* A. 基础配置 */}
-        <div className="fi" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
+        <div className="fi carousel-config-grid" style={{ marginBottom: 20 }}>
           {/* Platform */}
           <div style={cardStyle}>
             <div style={sectionTitle}>📱 平台</div>

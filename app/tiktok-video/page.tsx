@@ -197,7 +197,7 @@ export default function TikTokVideoPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 40px" }}>
+      <div className="product-page-wrap">
         <div className="fi">
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🎬 TikTok 带货视频</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 24 }}>AI 分镜规划 → 逐帧生成 → 拼接成片。选择视频类型，自动生成专业分镜脚本。</p>
@@ -206,7 +206,7 @@ export default function TikTokVideoPage() {
         {/* Video Type */}
         <div className="fi" style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>📽️ 视频类型</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+          <div className="tiktok-video-types">
             {VIDEO_TYPES.map((vt) => {
               const a = videoType === vt.key;
               return (
@@ -222,7 +222,7 @@ export default function TikTokVideoPage() {
         </div>
 
         {/* Config */}
-        <div className="fi" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+        <div className="fi tiktok-config-row" style={{ marginBottom: 20 }}>
           <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 12, padding: 14 }}>
             <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>⏱️ 时长</div>
             {DURATIONS.map((d) => (

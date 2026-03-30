@@ -71,7 +71,7 @@ export default function PosterPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 40px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 40px" }} className="poster-page-outer">
         <div className="fi">
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>📸 社媒海报设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
@@ -79,12 +79,12 @@ export default function PosterPage() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 260px", gap: 24 }}>
+        <div className="poster-layout">
           {/* Left: Config */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* A. 平台选择 */}
             <Section title="🖼️ 选择平台">
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              <div className="poster-platform-grid">
                 {PLATFORMS.map((p) => {
                   const active = platform === p.key;
                   return (
@@ -111,7 +111,7 @@ export default function PosterPage() {
 
             {/* B. 设计目标 */}
             <Section title="🎯 设计目标">
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              <div className="poster-goal-grid">
                 {GOALS.map((g) => {
                   const active = goal === g.key;
                   return (

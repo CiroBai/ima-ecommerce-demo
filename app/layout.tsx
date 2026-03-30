@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { SidebarNav } from "@/components/sidebar-nav";
+import AppShell from "@/components/app-shell";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,12 +19,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className={inter.className}>
-        <div className="app-layout">
-          <SidebarNav />
-          <main className="main-area">
-            {children}
-          </main>
-        </div>
+        <AppShell>{children}</AppShell>
         <Toaster
           position="top-right"
           theme="dark"

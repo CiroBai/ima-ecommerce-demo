@@ -71,7 +71,7 @@ export default function TemplatesPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ padding: "24px 32px" }} className="fi">
+      <div className="batch-page-wrap fi">
         {/* Header */}
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>🏪 模板市场</h1>
@@ -90,8 +90,9 @@ export default function TemplatesPage() {
               color: "var(--fg)", outline: "none", fontFamily: "inherit", width: 220,
             }}
           />
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {CATEGORIES.map(c => (
+          <div className="templates-filter-wrap" style={{ flex: 1 }}>
+            <div className="templates-filter-bar">
+              {CATEGORIES.map(c => (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
@@ -104,6 +105,7 @@ export default function TemplatesPage() {
                 }}
               >{c}</button>
             ))}
+            </div>
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
             <span style={{ fontSize: 11, color: "var(--t3)" }}>排序</span>
@@ -124,7 +126,7 @@ export default function TemplatesPage() {
         </div>
 
         {/* Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}>
+        <div className="templates-grid">
           {filtered.map(tpl => (
             <div
               key={tpl.id}

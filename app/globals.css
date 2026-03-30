@@ -227,18 +227,475 @@ body {
 .model-credits { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(168,85,247,.2); color: var(--pp); font-weight: 700; }
 .model-rec { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(249,115,22,.2); color: var(--acc); font-weight: 700; }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .app-layout { flex-direction: column; height: auto; min-height: 100vh; overflow: auto; }
-  .sidebar { display: none; }
+/* ============================================
+   通用响应式工具类
+   ============================================ */
+
+/* 通用响应式容器 */
+.page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 40px;
+}
+
+/* 响应式网格 */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+
+/* 响应式 flex 行→列 */
+.flex-row-col {
+  display: flex;
+  gap: 24px;
+}
+
+/* 汉堡菜单按钮（移动端） */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 98;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+  background: var(--bg3);
+  color: var(--t1);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ============================================
+   Mobile (<768px)
+   ============================================ */
+@media (max-width: 767px) {
+  /* ---- 布局 ---- */
+  .app-layout {
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* 侧边栏变为移动端抽屉 */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-260px);
+    z-index: 100;
+    transition: transform 0.25s ease;
+    width: 240px !important;
+    min-width: 240px !important;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* 遮罩层 */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+  }
+
+  .main-area {
+    margin-left: 0 !important;
+    width: 100%;
+    overflow-y: auto;
+    padding-top: 0;
+  }
+
+  /* 汉堡按钮显示 */
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---- Topbar ---- */
+  .topbar {
+    padding: 12px 16px 12px 56px !important;
+  }
+  .credits-badge {
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+  }
+
+  /* ---- 工具类响应式 ---- */
+  .page-container {
+    padding: 16px;
+  }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .grid-6 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .grid-3.mobile-1 { grid-template-columns: 1fr; }
+  .grid-4.mobile-1 { grid-template-columns: 1fr; }
+
+  .flex-row-col {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ---- Hero ---- */
   .hero { padding: 20px 16px 10px; }
   .hero h1 { font-size: 22px; }
+
+  /* ---- Category Grid ---- */
   .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 12px; }
+
+  /* ---- Workspace ---- */
   .workspace { padding: 16px; }
   .creation-area { grid-template-columns: 1fr; }
+
+  /* ---- Template Section ---- */
   .tpl-sec { padding: 20px 12px 32px; }
   .tpl-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* ---- Config ---- */
   .cfg-row { flex-direction: column; gap: 10px; }
+
+  /* ---- Suite CTA ---- */
   .suite-cta { flex-direction: column; text-align: center; gap: 10px; }
+
+  /* ---- Workspace Sub ---- */
   .ws-sub { margin-left: 0; width: 100%; }
+
+  /* ---- 移动端批量任务卡片 (代替表格) ---- */
+  .task-table-header { display: none !important; }
+  .task-table-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    padding: 12px !important;
+    grid-template-columns: unset !important;
+  }
+  .task-row-id { font-size: 10px; color: var(--t3); }
+  .task-row-actions { justify-content: flex-start !important; }
+
+  /* ---- 模板筛选横向滚动 ---- */
+  .template-filter-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .template-filter-bar::-webkit-scrollbar { height: 2px; }
+
+  /* ---- 通用 section padding ---- */
+  .section-pad {
+    padding: 16px !important;
+  }
+
+  /* ---- 大标题缩小 ---- */
+  .page-title {
+    font-size: 20px !important;
+  }
+}
+
+/* ============================================
+   首页专用样式
+   ============================================ */
+.home-hero-banner {
+  background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(168,85,247,0.08) 50%, rgba(59,130,246,0.08) 100%);
+  border-bottom: 1px solid var(--bd);
+  padding: 48px 40px 40px;
+  text-align: center;
+}
+.home-hero-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+.home-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.home-more-tools-section {
+  padding: 32px 40px 20px;
+  border-bottom: 1px solid var(--bd);
+}
+.home-tools-grid { gap: 10px; }
+.home-cat-section {
+  padding: 32px 40px 20px;
+}
+
+@media (max-width: 767px) {
+  .home-hero-banner { padding: 36px 16px 24px; }
+  .home-hero-title { font-size: 24px; letter-spacing: -0.5px; }
+  .home-entry-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-width: 100%;
+  }
+  .home-more-tools-section { padding: 16px 16px 12px; }
+  .home-cat-section { padding: 16px; }
+}
+
+/* ============================================
+   商品链接页专用样式
+   ============================================ */
+.product-page-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 40px;
+}
+.product-card-flex {
+  background: var(--bg3);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 24px;
+}
+.platform-btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .product-page-wrap { padding: 16px; }
+  .product-card-flex {
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+  }
+  .product-card-flex .product-img {
+    width: 100% !important;
+    height: 180px !important;
+  }
+  .platform-btn-group { gap: 6px; }
+  .platform-btn-group button { flex: 1 1 auto; min-width: 120px; }
+}
+
+/* ============================================
+   社媒海报页专用样式
+   ============================================ */
+.poster-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 24px;
+}
+.poster-platform-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.poster-goal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 767px) {
+  .poster-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .poster-platform-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .poster-goal-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* ============================================
+   批量任务页专用样式
+   ============================================ */
+.batch-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.batch-page-wrap {
+  padding: 24px 32px;
+}
+
+@media (max-width: 767px) {
+  .batch-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .batch-page-wrap { padding: 16px; }
+  /* 批量任务表格 → 卡片列表 */
+  .batch-table-desktop { display: none !important; }
+  .batch-cards-mobile { display: flex !important; flex-direction: column; gap: 8px; }
+}
+/* 桌面端隐藏移动卡片 */
+.batch-cards-mobile { display: none; }
+
+/* ============================================
+   TikTok视频页专用样式
+   ============================================ */
+.tiktok-video-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.tiktok-config-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 767px) {
+  .tiktok-video-types { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .tiktok-config-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ============================================
+   品牌Logo页专用样式
+   ============================================ */
+.branding-style-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.branding-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.branding-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 767px) {
+  .branding-style-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .branding-result-grid { grid-template-columns: 1fr; gap: 8px; }
+  .branding-apps-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ============================================
+   轮播图页专用样式
+   ============================================ */
+.carousel-config-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 767px) {
+  .carousel-config-grid { grid-template-columns: 1fr; gap: 8px; }
+}
+
+/* ============================================
+   宣传册页专用样式
+   ============================================ */
+.brochure-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 767px) {
+  .brochure-type-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ============================================
+   AI文案页专用样式
+   ============================================ */
+.copy-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.copy-config-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 767px) {
+  .copy-type-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .copy-config-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ============================================
+   模板市场页专用样式
+   ============================================ */
+.templates-filter-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.templates-filter-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 767px) {
+  .templates-filter-bar { flex-wrap: nowrap; padding-bottom: 4px; }
+  .templates-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ============================================
+   创作记录页专用样式
+   ============================================ */
+.records-stats-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.records-stat-item {
+  flex: 1;
+  min-width: 100px;
+}
+
+@media (max-width: 767px) {
+  .records-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* ============================================
+   设置页专用样式
+   ============================================ */
+.settings-page-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 40px;
+}
+
+@media (max-width: 767px) {
+  .settings-page-wrap { padding: 16px; }
+}
+
+@media (max-width: 767px) {
+  .poster-page-outer { padding: 16px !important; }
+}
+
+/* brochure 折页类型网格：桌面6列，移动2列 */
+.brochure-type-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+@media (max-width: 767px) {
+  .brochure-type-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }

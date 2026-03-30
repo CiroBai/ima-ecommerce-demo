@@ -87,7 +87,7 @@ export default function AICopywritingPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ padding: "24px 32px", maxWidth: 960, margin: "0 auto", width: "100%" }} className="fi">
+      <div className="batch-page-wrap fi" style={{ maxWidth: 960, width: "100%" }}>
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>✍️ AI 文案生成</h1>
@@ -99,7 +99,7 @@ export default function AICopywritingPage() {
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             文案类型
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+          <div className="copy-type-grid">
             {COPY_TYPES.map(t => (
               <div
                 key={t.key}
@@ -123,7 +123,7 @@ export default function AICopywritingPage() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="flex-row-col">
           {/* Input Area */}
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
@@ -144,7 +144,7 @@ export default function AICopywritingPage() {
             </div>
 
             {/* Options */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div className="copy-config-grid" style={{ marginBottom: 14 }}>
               {[
                 { label: "目标平台", options: PLATFORMS, value: platform, setValue: setPlatform },
                 { label: "语言", options: LANGUAGES, value: language, setValue: setLanguage },

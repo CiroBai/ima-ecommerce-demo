@@ -102,7 +102,7 @@ export default function BrandingPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 40px" }}>
+      <div className="product-page-wrap">
         <div className="fi">
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🎯 品牌 Logo 设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
@@ -110,7 +110,7 @@ export default function BrandingPage() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div className="flex-row-col">
           {/* Left Column */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* A. Brand Info */}
@@ -257,7 +257,7 @@ export default function BrandingPage() {
         {logoStatus === "done" && (
           <div className="fi" style={{ marginTop: 24 }}>
             <Card title="🎉 Logo 方案">
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+              <div className="branding-result-grid">
                 {MOCK_LOGO_RESULTS.slice(0, generateCount).map((logo) => {
                   const isSelected = selectedLogo === logo.id;
                   return (
@@ -319,7 +319,7 @@ export default function BrandingPage() {
               <p style={{ fontSize: 12, color: "var(--t3)", marginBottom: 16 }}>
                 基于选中方案，生成品牌衍生物料
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
+              <div className="branding-apps-grid" style={{ marginBottom: 16 }}>
                 {DERIVATIONS.map((d) => {
                   const done = derivResults.has(d.key);
                   return (

@@ -118,7 +118,7 @@ export default function BrochurePage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 40px" }}>
+      <div className="product-page-wrap">
         <div className="fi">
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>📄 宣传册设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
@@ -129,7 +129,7 @@ export default function BrochurePage() {
         {/* A. Fold Type */}
         <div className="fi" style={{ marginBottom: 20 }}>
           <Card title="📐 折页类型">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10 }}>
+            <div className="brochure-type-grid">
               {FOLD_TYPES.map((f) => {
                 const active = foldType === f.key;
                 return (
@@ -340,7 +340,7 @@ export default function BrochurePage() {
         {(stepStatus.flat === "done" || stepStatus.folded === "done" || stepStatus.scene === "done") && (
           <div className="fi" style={{ marginTop: 24 }}>
             <Card title="🎨 生成预览">
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              <div className="brochure-type-grid" style={{ gap: 12 }}>
                 {STEP_LABELS.filter((s) => stepStatus[s.key] === "done").map((step) => (
                   <div key={step.key} style={{
                     background: "var(--bg4)", border: "1px solid rgba(34,197,94,0.3)",

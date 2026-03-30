@@ -33,11 +33,20 @@ const NAV_ITEMS: NavItem[] = [
   { icon: "⚙️", label: "设置", href: "/settings" },
 ];
 
-export function SidebarNav() {
+interface SidebarNavProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function SidebarNav({ isOpen = false, onClose }: SidebarNavProps) {
   const pathname = usePathname();
 
+  const handleNavClick = () => {
+    onClose?.();
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isOpen ? " open" : ""}`}>
       <div className="sb-logo">
         <div className="sb-logo-icon">IM</div>
         <div className="sb-logo-text">
@@ -103,6 +112,7 @@ export function SidebarNav() {
               key={item.href}
               href={item.href}
               style={{ textDecoration: "none" }}
+              onClick={handleNavClick}
             >
               <div className={`sb-item ${isActive ? "active" : ""}`}>
                 <span>{item.icon}</span>

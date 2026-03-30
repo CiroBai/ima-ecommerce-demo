@@ -81,7 +81,7 @@ export default function BatchPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ padding: "24px 32px" }} className="fi">
+      <div className="batch-page-wrap fi">
         {/* Header */}
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>📋 批量任务中心</h1>
@@ -89,7 +89,7 @@ export default function BatchPage() {
         </div>
 
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
+        <div className="batch-stats-grid">
           {stats.map(s => (
             <div key={s.label} style={{
               background: "var(--bg3)", border: "1px solid var(--bd)",
@@ -148,8 +148,8 @@ export default function BatchPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div style={{
+        {/* Table (Desktop) */}
+        <div className="batch-table-desktop" style={{
           background: "var(--bg3)", border: "1px solid var(--bd)",
           borderRadius: 12, overflow: "hidden", marginBottom: 14,
         }}>
@@ -225,6 +225,64 @@ export default function BatchPage() {
                     {task.status === "失败" && (
                       <button style={{ padding: "3px 8px", borderRadius: 5, fontSize: 10, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.3)", color: "#f97316", cursor: "pointer", fontFamily: "inherit" }}>重试</button>
                     )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Cards (Mobile) */}
+        <div className="batch-cards-mobile" style={{ marginBottom: 14 }}>
+          {paginated.length === 0 ? (
+            <div style={{ padding: "48px", textAlign: "center", color: "var(--t3)", fontSize: 13 }}>
+              暂无符合条件的任务
+            </div>
+          ) : (
+            paginated.map((task) => {
+              const sc = STATUS_CONFIG[task.status];
+              return (
+                <div key={task.id} style={{
+                  background: "var(--bg3)", border: "1px solid var(--bd)",
+                  borderRadius: 10, padding: "12px 14px",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 16 }}>{task.typeIcon}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600 }}>{task.typeName}</span>
+                    </div>
+                    <span style={{
+                      fontSize: 10, padding: "2px 8px", borderRadius: 6,
+                      background: sc.bg, color: sc.color, fontWeight: 700,
+                    }}>
+                      {sc.icon} {sc.label}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--t2)", marginBottom: 6 }}>
+                    📦 {task.product}
+                  </div>
+                  {task.status === "进行中" && task.progress != null && (
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ height: 4, background: "var(--bd)", borderRadius: 2, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${task.progress}%`, background: "#f97316", borderRadius: 2 }} />
+                      </div>
+                      <div style={{ fontSize: 9, color: "var(--t3)", marginTop: 2 }}>{task.progress}%</div>
+                    </div>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ fontSize: 10, color: "var(--t3)" }}>
+                      #{task.id} · {task.createdAt}
+                      {task.credits > 0 && <span style={{ color: "var(--acc)", marginLeft: 6 }}>-{task.credits} 积分</span>}
+                    </div>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <button style={{ padding: "4px 10px", borderRadius: 5, fontSize: 10, background: "rgba(255,255,255,0.06)", border: "1px solid var(--bd)", color: "var(--t2)", cursor: "pointer", fontFamily: "inherit" }}>查看</button>
+                      {task.status === "完成" && (
+                        <button style={{ padding: "4px 10px", borderRadius: 5, fontSize: 10, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", cursor: "pointer", fontFamily: "inherit" }}>下载</button>
+                      )}
+                      {task.status === "失败" && (
+                        <button style={{ padding: "4px 10px", borderRadius: 5, fontSize: 10, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.3)", color: "#f97316", cursor: "pointer", fontFamily: "inherit" }}>重试</button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

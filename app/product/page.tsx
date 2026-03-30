@@ -293,7 +293,7 @@ export default function ProductPage() {
         <div className="credits-badge">✦ 365 积分</div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 40px" }}>
+      <div className="product-page-wrap">
         {/* URL Input */}
         <div className="fi" style={{ marginBottom: 28 }}>
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🔗 商品链接生成</h1>
@@ -337,7 +337,7 @@ export default function ProductPage() {
             {/* Platform Switcher */}
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>🌐 目标平台</div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div className="platform-btn-group">
                 {(Object.keys(PLATFORM_CONFIG) as PlatformKey[]).map((key) => {
                   const cfg = PLATFORM_CONFIG[key];
                   const active = activePlatform === key;
@@ -358,8 +358,8 @@ export default function ProductPage() {
             </div>
 
             {/* Product Card */}
-            <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 24, marginBottom: 16, display: "flex", gap: 24 }}>
-              <div style={{ width: 140, height: 140, borderRadius: 12, overflow: "hidden", flexShrink: 0, background: "var(--bg4)" }}>
+            <div className="product-card-flex">
+              <div style={{ width: 140, height: 140, borderRadius: 12, overflow: "hidden", flexShrink: 0, background: "var(--bg4)" }} className="product-img">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={product.image} alt={product.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
