@@ -14,11 +14,12 @@ const NAV_ITEMS: NavItem[] = [
   { icon: "🔗", label: "商品链接生成", href: "/product", badge: "NEW" },
   { icon: "🎬", label: "TikTok 带货视频", href: "/tiktok-video", badge: "NEW" },
   { icon: "🔥", label: "爆款复刻", href: "/clone" },
-  // 品牌设计（预留）
+  // 品牌设计
   { type: "divider", label: "品牌设计" },
-  { icon: "🎯", label: "品牌 Logo", href: "/branding", disabled: true, badge: "即将上线" },
-  { icon: "📸", label: "社媒海报", href: "/poster", disabled: true, badge: "即将上线" },
-  { icon: "🎠", label: "轮播图", href: "/carousel", disabled: true, badge: "即将上线" },
+  { icon: "🎯", label: "品牌 Logo", href: "/branding", badge: "NEW" },
+  { icon: "📸", label: "社媒海报", href: "/poster", badge: "NEW" },
+  { icon: "🎠", label: "轮播图", href: "/carousel", badge: "NEW" },
+  { icon: "📄", label: "宣传册", href: "/brochure", badge: "NEW" },
   // 工具
   { type: "divider", label: "工具" },
   { icon: "✂️", label: "智能换图", href: "/smart-replace" },
