@@ -24,9 +24,13 @@ const NAV_ITEMS: NavItem[] = [
   { type: "divider", label: "工具" },
   { icon: "✂️", label: "智能换图", href: "/smart-replace" },
   { icon: "📦", label: "批量素材", href: "/workspace" },
+  { icon: "✍️", label: "AI 文案", href: "/ai-copywriting", badge: "NEW" },
+  { icon: "📋", label: "批量任务", href: "/batch", badge: "NEW" },
+  { icon: "🏪", label: "模板市场", href: "/templates", badge: "NEW" },
   // 底部
   { type: "divider" },
   { icon: "📋", label: "创作记录", href: "/records" },
+  { icon: "⚙️", label: "设置", href: "/settings" },
 ];
 
 export function SidebarNav() {
@@ -125,14 +129,6 @@ export function SidebarNav() {
       </nav>
 
       <div className="sb-divider" />
-
-      <div style={{ padding: "4px 20px 8px" }}>
-        <Link href="/settings" style={{ textDecoration: "none" }}>
-          <div className="sb-item">
-            <span>⚙️</span> 设置
-          </div>
-        </Link>
-      </div>
 
       <div className="sb-bottom">
         <div className="sb-user">

@@ -115,23 +115,23 @@ const CORE_ENTRIES = [
   {
     icon: "🎨",
     title: "品牌全套设计",
-    desc: "Logo + 海报 + 轮播图，品牌全套视觉资产，即将上线",
-    href: "#",
-    tags: ["品牌 Logo", "社媒海报", "轮播图", "宣传册"],
-    credits: "即将开放",
-    gradient: "linear-gradient(135deg, rgba(100,116,139,0.10), rgba(71,85,105,0.10))",
-    border: "rgba(100,116,139,0.2)",
-    accent: "#94a3b8",
-    badge: "🔒 即将上线",
-    disabled: true,
+    desc: "Logo + 海报 + 轮播图 + 宣传册，品牌全套视觉资产，一站搞定",
+    href: "/branding",
+    tags: ["Logo", "海报", "轮播图", "宣传册"],
+    credits: "8-18 积分/张",
+    gradient: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))",
+    border: "rgba(168,85,247,0.3)",
+    accent: "#a855f7",
+    badge: "🎨 品牌设计",
+    disabled: false,
   },
 ];
 
-const COMING_SOON = [
-  { icon: "🎯", label: "品牌 Logo", desc: "AI 生成专业品牌标志" },
-  { icon: "📸", label: "社媒海报", desc: "适配各平台的营销海报" },
-  { icon: "🎠", label: "轮播图", desc: "电商详情页轮播图集" },
-  { icon: "📄", label: "宣传册", desc: "品牌宣传画册一键生成" },
+const MORE_TOOLS = [
+  { icon: "✍️", label: "AI 文案", desc: "一站式生成所有平台文案", href: "/ai-copywriting", color: "#06b6d4" },
+  { icon: "📋", label: "批量任务", desc: "统一管理所有生成任务", href: "/batch", color: "#22c55e" },
+  { icon: "🏪", label: "模板市场", desc: "精选模板一键套用", href: "/templates", color: "#a855f7" },
+  { icon: "⚙️", label: "设置中心", desc: "API 配置与偏好设置", href: "/settings", color: "#f97316" },
 ];
 
 export default function HomePage() {
@@ -264,32 +264,37 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Coming Soon Section */}
+      {/* More Tools Section */}
       <div style={{ padding: "32px 40px 20px", borderBottom: "1px solid var(--bd)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700 }}>🔒 即将上线</h2>
-          <span style={{ fontSize: 11, color: "var(--t3)" }}>品牌全套设计能力，敬请期待</span>
+          <h2 style={{ fontSize: 16, fontWeight: 700 }}>🛠 更多工具</h2>
+          <span style={{ fontSize: 11, color: "var(--t3)" }}>AI 文案 · 批量任务 · 模板市场</span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-          {COMING_SOON.map((item) => (
-            <div key={item.label} style={{
-              background: "var(--bg3)",
-              border: "1px solid var(--bd)",
-              borderRadius: 12,
-              padding: "16px 18px",
-              opacity: 0.5,
-              cursor: "not-allowed",
-            }}>
+          {MORE_TOOLS.map((item) => (
+            <div
+              key={item.label}
+              onClick={() => router.push(item.href)}
+              style={{
+                background: "var(--bg3)",
+                border: "1px solid var(--bd)",
+                borderRadius: 12,
+                padding: "16px 18px",
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.borderColor = item.color + "66";
+                (e.currentTarget as HTMLElement).style.background = "var(--bg4)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--bd)";
+                (e.currentTarget as HTMLElement).style.background = "var(--bg3)";
+              }}
+            >
               <div style={{ fontSize: 24, marginBottom: 8 }}>{item.icon}</div>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
-              <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 10, lineHeight: 1.4 }}>{item.desc}</div>
-              <span style={{
-                fontSize: 9, padding: "2px 8px", borderRadius: 4,
-                background: "rgba(255,255,255,0.06)",
-                color: "var(--t3)", fontWeight: 600,
-              }}>
-                Coming Soon
-              </span>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--fg)" }}>{item.label}</div>
+              <div style={{ fontSize: 11, color: "var(--t3)", lineHeight: 1.4 }}>{item.desc}</div>
             </div>
           ))}
         </div>
