@@ -83,58 +83,55 @@ const TEMPLATES = [
     views: "1.2k",
     rating: "5.0",
   },
-  {
-    category: "美妆护肤",
-    title: "亚马逊 A+ 品牌页",
-    desc: "完整A+内容模板：品牌横幅+卖点矩阵+竞品对比+场景图集+FAQ",
-    prompt: "beauty brand A+ content, professional lifestyle photography, clean white background, premium aesthetic",
-    tags: ["亚马逊", "A+", "品牌"],
-    badge: "top",
-    badgeText: "👑 TOP",
-    bg: "linear-gradient(135deg,#dbeafe,#bfdbfe)",
-    emoji: "⭐",
-    views: "2.5k",
-    rating: "4.9",
-  },
 ];
 
 const CORE_ENTRIES = [
   {
-    icon: "🔗",
-    title: "商品链接生成",
-    desc: "输入 TikTok Shop / Amazon / Shopee 商品链接，自动分析商品信息，一键生成完整素材方案",
+    icon: "🛒",
+    title: "亚马逊套图",
+    desc: "一键生成 7+2 专业 listing 图集，主图/场景图/信息图全覆盖",
     href: "/product",
-    tags: ["自动解析", "主图", "场景图", "卖点图"],
-    credits: "5-15 积分/张",
+    tags: ["7+2图位", "白底主图", "信息图", "场景图"],
+    credits: "10-18 积分/张",
     gradient: "linear-gradient(135deg, rgba(249,115,22,0.15), rgba(236,72,153,0.15))",
     border: "rgba(249,115,22,0.3)",
     accent: "#f97316",
     badge: "🔥 最受欢迎",
+    disabled: false,
   },
   {
-    icon: "🔥",
-    title: "爆款复刻",
-    desc: "输入竞品爆款视频/图片链接，AI 自动分析爆款结构，生成保留爆款基因的同款素材",
-    href: "/clone",
-    tags: ["爆款分析", "结构复刻", "风格迁移", "批量输出"],
-    credits: "8-15 积分/次",
+    icon: "🎬",
+    title: "TikTok 带货视频",
+    desc: "AI 分镜规划，批量生成短视频素材，开箱/教程/对比多模板",
+    href: "/tiktok-video",
+    tags: ["AI分镜", "多模板", "9:16竖屏", "批量生成"],
+    credits: "12-18 积分/帧",
     gradient: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15))",
     border: "rgba(168,85,247,0.3)",
     accent: "#a855f7",
     badge: "✨ 新功能",
+    disabled: false,
   },
   {
-    icon: "📦",
-    title: "批量素材生成",
-    desc: "上传商品图，选择模板和平台，批量输出适配亚马逊、TikTok、IG 等多平台的带货素材",
-    href: "/workspace",
-    tags: ["批量生成", "多平台", "亚马逊", "TikTok"],
-    credits: "5 积分/张",
-    gradient: "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(20,184,166,0.15))",
-    border: "rgba(34,197,94,0.3)",
-    accent: "#22c55e",
-    badge: "⚡ 高效率",
+    icon: "🎨",
+    title: "品牌全套设计",
+    desc: "Logo + 海报 + 轮播图，品牌全套视觉资产，即将上线",
+    href: "#",
+    tags: ["品牌 Logo", "社媒海报", "轮播图", "宣传册"],
+    credits: "即将开放",
+    gradient: "linear-gradient(135deg, rgba(100,116,139,0.10), rgba(71,85,105,0.10))",
+    border: "rgba(100,116,139,0.2)",
+    accent: "#94a3b8",
+    badge: "🔒 即将上线",
+    disabled: true,
   },
+];
+
+const COMING_SOON = [
+  { icon: "🎯", label: "品牌 Logo", desc: "AI 生成专业品牌标志" },
+  { icon: "📸", label: "社媒海报", desc: "适配各平台的营销海报" },
+  { icon: "🎠", label: "轮播图", desc: "电商详情页轮播图集" },
+  { icon: "📄", label: "宣传册", desc: "品牌宣传画册一键生成" },
 ];
 
 export default function HomePage() {
@@ -197,22 +194,25 @@ export default function HomePage() {
         }}>
           {CORE_ENTRIES.map((entry) => (
             <div
-              key={entry.href}
-              onClick={() => router.push(entry.href)}
+              key={entry.title}
+              onClick={() => !entry.disabled && router.push(entry.href)}
               style={{
                 background: entry.gradient,
                 border: `1px solid ${entry.border}`,
                 borderRadius: 16,
                 padding: "24px 20px",
-                cursor: "pointer",
+                cursor: entry.disabled ? "not-allowed" : "pointer",
                 textAlign: "left",
                 transition: "all 0.2s",
                 position: "relative",
                 overflow: "hidden",
+                opacity: entry.disabled ? 0.7 : 1,
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 40px ${entry.border}`;
+                if (!entry.disabled) {
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 40px ${entry.border}`;
+                }
               }}
               onMouseLeave={e => {
                 (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
@@ -240,15 +240,56 @@ export default function HomePage() {
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 10, color: "var(--t3)" }}>{entry.credits}</span>
-                <button style={{
-                  padding: "6px 16px", borderRadius: 8,
-                  background: `linear-gradient(135deg, ${entry.accent}, ${entry.accent}cc)`,
-                  color: "#fff", fontSize: 12, fontWeight: 600, border: "none",
-                  cursor: "pointer", fontFamily: "inherit",
-                }}>
-                  立即使用 →
-                </button>
+                {entry.disabled ? (
+                  <span style={{
+                    padding: "6px 16px", borderRadius: 8,
+                    background: "rgba(255,255,255,0.06)",
+                    color: "var(--t3)", fontSize: 12, fontWeight: 600,
+                  }}>
+                    即将开放
+                  </span>
+                ) : (
+                  <button style={{
+                    padding: "6px 16px", borderRadius: 8,
+                    background: `linear-gradient(135deg, ${entry.accent}, ${entry.accent}cc)`,
+                    color: "#fff", fontSize: 12, fontWeight: 600, border: "none",
+                    cursor: "pointer", fontFamily: "inherit",
+                  }}>
+                    立即使用 →
+                  </button>
+                )}
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Coming Soon Section */}
+      <div style={{ padding: "32px 40px 20px", borderBottom: "1px solid var(--bd)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700 }}>🔒 即将上线</h2>
+          <span style={{ fontSize: 11, color: "var(--t3)" }}>品牌全套设计能力，敬请期待</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+          {COMING_SOON.map((item) => (
+            <div key={item.label} style={{
+              background: "var(--bg3)",
+              border: "1px solid var(--bd)",
+              borderRadius: 12,
+              padding: "16px 18px",
+              opacity: 0.5,
+              cursor: "not-allowed",
+            }}>
+              <div style={{ fontSize: 24, marginBottom: 8 }}>{item.icon}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 10, lineHeight: 1.4 }}>{item.desc}</div>
+              <span style={{
+                fontSize: 9, padding: "2px 8px", borderRadius: 4,
+                background: "rgba(255,255,255,0.06)",
+                color: "var(--t3)", fontWeight: 600,
+              }}>
+                Coming Soon
+              </span>
             </div>
           ))}
         </div>
