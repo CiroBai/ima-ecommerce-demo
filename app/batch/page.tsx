@@ -84,30 +84,27 @@ export default function BatchPage() {
       <div className="batch-page-wrap fi">
         {/* Header */}
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>📋 批量任务中心</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.02em" }}>📋 批量任务中心</h1>
           <p style={{ fontSize: 13, color: "var(--t2)" }}>统一管理所有生成任务的进度与结果</p>
         </div>
 
         {/* Stats */}
         <div className="batch-stats-grid">
           {stats.map(s => (
-            <div key={s.label} style={{
-              background: "var(--bg3)", border: "1px solid var(--bd)",
-              borderRadius: 12, padding: "16px 18px",
-            }}>
-              <div style={{ fontSize: 20, marginBottom: 8 }}>{s.icon}</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: s.color, marginBottom: 2 }}>{s.value}</div>
-              <div style={{ fontSize: 12, color: "var(--t3)" }}>{s.label}</div>
+            <div key={s.label} className="glow-card">
+              {/* 顶部渐变色条 */}
+              <div style={{ height: 3, background: `linear-gradient(90deg, ${s.color}, ${s.color}66)`, borderRadius: "16px 16px 0 0" }} />
+              <div style={{ padding: "14px 18px" }}>
+                <div style={{ fontSize: 20, marginBottom: 8 }}>{s.icon}</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: s.color, marginBottom: 2 }}>{s.value}</div>
+                <div style={{ fontSize: 12, color: "var(--t3)" }}>{s.label}</div>
+              </div>
             </div>
           ))}
         </div>
 
         {/* Filters */}
-        <div style={{
-          background: "var(--bg3)", border: "1px solid var(--bd)",
-          borderRadius: 12, padding: "14px 16px", marginBottom: 16,
-          display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center",
-        }}>
+        <div className="glow-card" style={{ padding: "14px 16px", marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
           {[
             { label: "状态", options: ["全部", "进行中", "完成", "失败", "排队中"], value: statusFilter, set: setStatusFilter },
             { label: "类型", options: ["全部", "图片", "视频", "文案", "Logo", "海报"], value: typeFilter, set: setTypeFilter },
@@ -149,10 +146,7 @@ export default function BatchPage() {
         </div>
 
         {/* Table (Desktop) */}
-        <div className="batch-table-desktop" style={{
-          background: "var(--bg3)", border: "1px solid var(--bd)",
-          borderRadius: 12, overflow: "hidden", marginBottom: 14,
-        }}>
+        <div className="batch-table-desktop glow-card" style={{ overflow: "hidden", marginBottom: 14, borderRadius: 12 }}>
           {/* Header */}
           <div style={{
             display: "grid",
@@ -181,11 +175,12 @@ export default function BatchPage() {
                     gridTemplateColumns: "64px 1fr 140px 100px 80px 60px 90px 120px",
                     padding: "11px 16px",
                     borderBottom: idx < paginated.length - 1 ? "1px solid var(--bd)" : "none",
+                    borderLeft: "2px solid transparent",
                     alignItems: "center",
-                    transition: "background 0.1s",
+                    transition: "all 0.15s",
                   }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "var(--bg4)"}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "transparent"}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.03)"; (e.currentTarget as HTMLElement).style.borderLeft = "2px solid rgba(249,115,22,0.2)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderLeft = "2px solid transparent"; }}
                 >
                   <div style={{ fontSize: 11, color: "var(--t3)", fontFamily: "monospace" }}>#{task.id}</div>
                   <div style={{ fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
@@ -242,10 +237,7 @@ export default function BatchPage() {
             paginated.map((task) => {
               const sc = STATUS_CONFIG[task.status];
               return (
-                <div key={task.id} style={{
-                  background: "var(--bg3)", border: "1px solid var(--bd)",
-                  borderRadius: 10, padding: "12px 14px",
-                }}>
+                <div key={task.id} className="glow-card" style={{ padding: "12px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ fontSize: 16 }}>{task.typeIcon}</span>

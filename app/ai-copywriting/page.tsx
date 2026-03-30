@@ -90,7 +90,7 @@ export default function AICopywritingPage() {
       <div className="batch-page-wrap fi" style={{ maxWidth: 960, width: "100%" }}>
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>✍️ AI 文案生成</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>✍️ AI 文案生成</h1>
           <p style={{ fontSize: 13, color: "var(--t2)" }}>一站式生成所有平台所需文案，8种类型，5种语言，秒出高质量内容</p>
         </div>
 
@@ -129,7 +129,7 @@ export default function AICopywritingPage() {
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               商品信息
             </div>
-            <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 12, padding: 16, marginBottom: 14 }}>
+            <div className="glow-card" style={{ padding: 16, marginBottom: 14 }}>
               <textarea
                 placeholder="粘贴商品链接或描述...&#10;例：无线蓝牙耳机，30小时续航，ANC降噪，IPX5防水，适合运动健身"
                 value={productInfo}

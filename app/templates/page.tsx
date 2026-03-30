@@ -74,7 +74,7 @@ export default function TemplatesPage() {
       <div className="batch-page-wrap fi">
         {/* Header */}
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>🏪 模板市场</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>🏪 模板市场</h1>
           <p style={{ fontSize: 13, color: "var(--t2)" }}>精选高转化模板，一键套用到工作台，快速启动内容生产</p>
         </div>
 

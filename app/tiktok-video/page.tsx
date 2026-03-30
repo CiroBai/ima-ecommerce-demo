@@ -199,7 +199,7 @@ export default function TikTokVideoPage() {
 
       <div className="product-page-wrap">
         <div className="fi">
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🎬 TikTok 带货视频</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.02em" }}>🎬 TikTok 带货视频</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 24 }}>AI 分镜规划 → 逐帧生成 → 拼接成片。选择视频类型，自动生成专业分镜脚本。</p>
         </div>
 
@@ -211,7 +211,8 @@ export default function TikTokVideoPage() {
               const a = videoType === vt.key;
               return (
                 <button key={vt.key} onClick={() => handleTypeChange(vt.key)}
-                  style={{ padding: "14px 16px", borderRadius: 12, textAlign: "left", cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s", background: a ? "rgba(249,115,22,0.12)" : "var(--bg3)", border: `1px solid ${a ? "rgba(249,115,22,0.5)" : "var(--bd)"}` }}>
+                  className={a ? "" : "glow-card"}
+                  style={{ padding: "14px 16px", borderRadius: 12, textAlign: "left", cursor: "pointer", fontFamily: "inherit", transition: "all 0.3s", background: a ? "rgba(249,115,22,0.12)" : undefined, border: `1px solid ${a ? "rgba(249,115,22,0.5)" : "var(--bd)"}`, boxShadow: a ? "0 0 0 1px rgba(249,115,22,0.1), 0 0 20px rgba(249,115,22,0.08)" : undefined }}>
                   <div style={{ fontSize: 20, marginBottom: 6 }}>{vt.icon}</div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: a ? "#f97316" : "var(--fg)", marginBottom: 2 }}>{vt.label}</div>
                   <div style={{ fontSize: 11, color: "var(--t3)", lineHeight: 1.4 }}>{vt.desc}</div>
@@ -223,7 +224,7 @@ export default function TikTokVideoPage() {
 
         {/* Config */}
         <div className="fi tiktok-config-row" style={{ marginBottom: 20 }}>
-          <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 12, padding: 14 }}>
+          <div className="glow-card" style={{ padding: 14 }}>
             <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>⏱️ 时长</div>
             {DURATIONS.map((d) => (
               <button key={d.value} onClick={() => handleDurationChange(d.value)}
@@ -232,7 +233,7 @@ export default function TikTokVideoPage() {
               </button>
             ))}
           </div>
-          <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 12, padding: 14 }}>
+          <div className="glow-card" style={{ padding: 14 }}>
             <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>📐 画面比例</div>
             {RATIOS.map((r) => (
               <button key={r.value} onClick={() => setRatio(r.value)}
@@ -241,7 +242,7 @@ export default function TikTokVideoPage() {
               </button>
             ))}
           </div>
-          <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 12, padding: 14 }}>
+          <div className="glow-card" style={{ padding: 14 }}>
             <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>🌐 语言</div>
             {LANGUAGES.map((l) => (
               <button key={l} onClick={() => setLanguage(l)}
@@ -250,7 +251,7 @@ export default function TikTokVideoPage() {
               </button>
             ))}
           </div>
-          <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 12, padding: 14 }}>
+          <div className="glow-card" style={{ padding: 14 }}>
             <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>🎨 风格</div>
             {STYLES.map((s) => (
               <button key={s} onClick={() => setStyle(s)}
@@ -263,7 +264,7 @@ export default function TikTokVideoPage() {
 
         {/* Summary */}
         <div className="fi" style={{ marginBottom: 20 }}>
-          <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 12, padding: "10px 16px", display: "flex", gap: 16, flexWrap: "wrap", fontSize: 12 }}>
+          <div className="glow-card" style={{ padding: "10px 16px", display: "flex", gap: 16, flexWrap: "wrap", fontSize: 12, borderRadius: 12 }}>
             <span>📽️ <strong>{VIDEO_TYPES.find((v) => v.key === videoType)?.label}</strong></span>
             <span>⏱️ <strong>{duration}秒</strong></span>
             <span>📐 <strong>{ratio}</strong></span>
@@ -292,7 +293,7 @@ export default function TikTokVideoPage() {
                 style={{
                   background: frame.status === "done" ? "rgba(34,197,94,0.04)" : frame.status === "generating" ? "rgba(249,115,22,0.04)" : "var(--bg3)",
                   border: `1px solid ${frame.status === "done" ? "rgba(34,197,94,0.3)" : frame.status === "generating" ? "rgba(249,115,22,0.3)" : "var(--bd)"}`,
-                  borderRadius: 14, padding: 16, transition: "all 0.15s",
+                  borderRadius: 14, padding: 16, transition: "all 0.3s",
                 }}>
                 <div style={{ display: "flex", gap: 12 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>

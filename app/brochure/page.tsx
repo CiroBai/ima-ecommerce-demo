@@ -120,7 +120,7 @@ export default function BrochurePage() {
 
       <div className="product-page-wrap">
         <div className="fi">
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>📄 宣传册设计</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>📄 宣传册设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
             选择折页类型 → 填写每面内容 → 分步生成设计稿 → 效果图 → 场景图
           </p>
@@ -246,9 +246,7 @@ export default function BrochurePage() {
             </Card>
 
             {/* Preview Summary */}
-            <div style={{
-              background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 16,
-            }}>
+            <div className="glow-card" style={{ padding: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10, color: "var(--t2)" }}>当前配置</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 11 }}>
                 <InfoRow label="折页类型" value={`${currentFold.label} · ${currentFold.facesLabel}`} />
@@ -264,9 +262,7 @@ export default function BrochurePage() {
             </div>
 
             {/* D. Step Buttons */}
-            <div style={{
-              background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 16,
-            }}>
+            <div className="glow-card" style={{ padding: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 12, color: "var(--t2)" }}>🚀 分步生成</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {STEP_LABELS.map((step, idx) => {

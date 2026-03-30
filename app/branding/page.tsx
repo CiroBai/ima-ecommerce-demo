@@ -104,7 +104,7 @@ export default function BrandingPage() {
 
       <div className="product-page-wrap">
         <div className="fi">
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🎯 品牌 Logo 设计</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>🎯 品牌 Logo 设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
             输入品牌信息 → 选择风格 → AI 生成 4 套专业 Logo 方案
           </p>
@@ -218,9 +218,7 @@ export default function BrandingPage() {
 
         {/* Generate Button */}
         <div className="fi" style={{ marginTop: 20 }}>
-          <div style={{
-            background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 20,
-          }}>
+          <div className="glow-card" style={{ padding: 20 }}>
             {logoStatus === "generating" && (
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>

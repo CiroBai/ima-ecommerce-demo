@@ -93,11 +93,10 @@ const CORE_ENTRIES = [
     href: "/product",
     tags: ["7+2图位", "白底主图", "信息图", "场景图"],
     credits: "10-18 积分/张",
-    gradient: "linear-gradient(135deg, rgba(249,115,22,0.15), rgba(236,72,153,0.15))",
-    border: "rgba(249,115,22,0.3)",
-    accent: "#f97316",
+    topGradient: "linear-gradient(90deg, #f97316, #f59e0b)",
+    iconBg: "linear-gradient(135deg, rgba(249,115,22,0.3), rgba(245,158,11,0.2))",
     badge: "🔥 最受欢迎",
-    disabled: false,
+    badgeColor: "#f97316",
   },
   {
     icon: "🎬",
@@ -106,11 +105,10 @@ const CORE_ENTRIES = [
     href: "/tiktok-video",
     tags: ["AI分镜", "多模板", "9:16竖屏", "批量生成"],
     credits: "12-18 积分/帧",
-    gradient: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15))",
-    border: "rgba(168,85,247,0.3)",
-    accent: "#a855f7",
+    topGradient: "linear-gradient(90deg, #ec4899, #c084fc)",
+    iconBg: "linear-gradient(135deg, rgba(236,72,153,0.3), rgba(192,132,252,0.2))",
     badge: "✨ 新功能",
-    disabled: false,
+    badgeColor: "#c084fc",
   },
   {
     icon: "🎨",
@@ -119,11 +117,10 @@ const CORE_ENTRIES = [
     href: "/branding",
     tags: ["Logo", "海报", "轮播图", "宣传册"],
     credits: "8-18 积分/张",
-    gradient: "linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))",
-    border: "rgba(168,85,247,0.3)",
-    accent: "#a855f7",
+    topGradient: "linear-gradient(90deg, #60a5fa, #818cf8)",
+    iconBg: "linear-gradient(135deg, rgba(96,165,250,0.3), rgba(129,140,248,0.2))",
     badge: "🎨 品牌设计",
-    disabled: false,
+    badgeColor: "#818cf8",
   },
 ];
 
@@ -154,99 +151,111 @@ export default function HomePage() {
       {/* Topbar */}
       <div className="topbar">
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 13, color: "var(--t3)" }}>AI 电商素材工厂</span>
+          <span style={{
+            fontSize: 13,
+            color: "var(--t3)",
+            fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)",
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
+          }}>
+            AI 电商素材工厂
+          </span>
         </div>
-        <div className="credits-badge">✦ 365 积分</div>
+        <div className="credits-badge">
+          <span>✦</span>
+          <span className="credits-text">365 积分</span>
+        </div>
       </div>
 
       {/* Hero Banner */}
       <div className="fi home-hero-banner">
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
-          padding: "4px 14px", borderRadius: 20,
-          background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)",
-          color: "#f97316", fontSize: 11, fontWeight: 600, marginBottom: 20
-        }}>
+        {/* Model badge */}
+        <div className="badge-glow" style={{ marginBottom: 20 }}>
           🚀 由 SeeDream 4.5 + Midjourney + Nano Banana Pro 驱动
         </div>
-        <h1 className="home-hero-title">
+
+        <h1 className="home-hero-title gradient-text">
           AI 电商素材工厂
         </h1>
-        <p style={{ fontSize: 16, color: "var(--t2)", marginBottom: 8 }}>
+
+        {/* 装饰分隔线 */}
+        <div style={{
+          width: 80, height: 2, margin: "0 auto 16px",
+          background: "linear-gradient(90deg, transparent, var(--acc), transparent)",
+          borderRadius: 2,
+        }} />
+
+        <p style={{ fontSize: 16, color: "var(--t2)", marginBottom: 8 }} className="animate-in delay-1">
           输入商品链接，一键生成全套带货素材
         </p>
-        <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 40 }}>
+        <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 40 }} className="animate-in delay-2">
           主图 · 场景图 · 卖点图 · 短视频 · A+ 内容 — 全平台适配，分钟级交付
         </p>
 
         {/* Three Core Entry Cards */}
         <div className="home-entry-grid">
-          {CORE_ENTRIES.map((entry) => (
+          {CORE_ENTRIES.map((entry, i) => (
             <div
               key={entry.title}
-              onClick={() => !entry.disabled && router.push(entry.href)}
+              className={`glow-card animate-in delay-${i + 1}`}
+              onClick={() => router.push(entry.href)}
               style={{
-                background: entry.gradient,
-                border: `1px solid ${entry.border}`,
-                borderRadius: 16,
-                padding: "24px 20px",
-                cursor: entry.disabled ? "not-allowed" : "pointer",
+                padding: "0",
+                cursor: "pointer",
                 textAlign: "left",
-                transition: "all 0.2s",
-                position: "relative",
-                overflow: "hidden",
-                opacity: entry.disabled ? 0.7 : 1,
-              }}
-              onMouseEnter={e => {
-                if (!entry.disabled) {
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-                  (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 40px ${entry.border}`;
-                }
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "none";
               }}
             >
-              <div style={{
-                position: "absolute", top: 12, right: 12,
-                fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 8,
-                background: `${entry.accent}22`, border: `1px solid ${entry.accent}44`,
-                color: entry.accent,
-              }}>
-                {entry.badge}
-              </div>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>{entry.icon}</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{entry.title}</h3>
-              <p style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.6, marginBottom: 14 }}>{entry.desc}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 14 }}>
-                {entry.tags.map(tag => (
-                  <span key={tag} style={{
-                    fontSize: 10, padding: "2px 8px", borderRadius: 6,
-                    background: "rgba(255,255,255,0.06)", color: "var(--t2)",
-                  }}>{tag}</span>
-                ))}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 10, color: "var(--t3)" }}>{entry.credits}</span>
-                {entry.disabled ? (
+              {/* 顶部渐变色条 */}
+              <div style={{ height: 3, background: entry.topGradient, borderRadius: "16px 16px 0 0" }} />
+
+              <div style={{ padding: "20px 20px 20px" }}>
+                {/* badge */}
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                   <span style={{
-                    padding: "6px 16px", borderRadius: 8,
-                    background: "rgba(255,255,255,0.06)",
-                    color: "var(--t3)", fontSize: 12, fontWeight: 600,
+                    fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 8,
+                    background: `${entry.badgeColor}22`, border: `1px solid ${entry.badgeColor}44`,
+                    color: entry.badgeColor,
                   }}>
-                    即将开放
+                    {entry.badge}
                   </span>
-                ) : (
-                  <button style={{
-                    padding: "6px 16px", borderRadius: 8,
-                    background: `linear-gradient(135deg, ${entry.accent}, ${entry.accent}cc)`,
-                    color: "#fff", fontSize: 12, fontWeight: 600, border: "none",
-                    cursor: "pointer", fontFamily: "inherit",
-                  }}>
+                </div>
+
+                {/* Icon 圆背景 */}
+                <div style={{
+                  width: 48, height: 48, borderRadius: "50%",
+                  background: entry.iconBg,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 24, marginBottom: 14,
+                }}>
+                  {entry.icon}
+                </div>
+
+                <h3 style={{
+                  fontSize: 16, fontWeight: 700, marginBottom: 8,
+                  fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)",
+                  letterSpacing: "-0.02em",
+                }}>
+                  {entry.title}
+                </h3>
+                <p style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.6, marginBottom: 14 }}>
+                  {entry.desc}
+                </p>
+
+                {/* Tags */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 16 }}>
+                  {entry.tags.map(tag => (
+                    <span key={tag} className="pill-tab" style={{ fontSize: 10, padding: "2px 8px" }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 10, color: "var(--t3)" }}>{entry.credits}</span>
+                  <button className="btn-glow" style={{ padding: "7px 16px", borderRadius: 10, fontSize: 12 }}>
                     立即使用 →
                   </button>
-                )}
+                </div>
               </div>
             </div>
           ))}
@@ -256,32 +265,29 @@ export default function HomePage() {
       {/* More Tools Section */}
       <div className="home-more-tools-section">
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700 }}>🛠 更多工具</h2>
+          <h2 className="gradient-text" style={{ fontSize: 16, fontWeight: 700 }}>🛠 更多工具</h2>
           <span style={{ fontSize: 11, color: "var(--t3)" }}>AI 文案 · 批量任务 · 模板市场</span>
         </div>
         <div className="grid-4 home-tools-grid">
           {MORE_TOOLS.map((item) => (
             <div
               key={item.label}
+              className="glow-card"
               onClick={() => router.push(item.href)}
               style={{
-                background: "var(--bg3)",
-                border: "1px solid var(--bd)",
-                borderRadius: 12,
                 padding: "16px 18px",
                 cursor: "pointer",
-                transition: "all 0.15s",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.borderColor = item.color + "66";
-                (e.currentTarget as HTMLElement).style.background = "var(--bg4)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--bd)";
-                (e.currentTarget as HTMLElement).style.background = "var(--bg3)";
               }}
             >
-              <div style={{ fontSize: 24, marginBottom: 8 }}>{item.icon}</div>
+              <div style={{
+                fontSize: 24, marginBottom: 8,
+                transition: "transform 0.2s",
+                display: "inline-block",
+              }}
+              className="tool-emoji"
+              >
+                {item.icon}
+              </div>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--fg)" }}>{item.label}</div>
               <div style={{ fontSize: 11, color: "var(--t3)", lineHeight: 1.4 }}>{item.desc}</div>
             </div>
@@ -314,8 +320,13 @@ export default function HomePage() {
       {/* Template Showcase */}
       <div className="tpl-sec">
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700 }}>📋 模板库</h2>
-          <span style={{ fontSize: 11, color: "var(--t3)", background: "rgba(255,255,255,0.05)", padding: "2px 8px", borderRadius: 6 }}>
+          <h2 className="gradient-text" style={{ fontSize: 18, fontWeight: 700, display: "inline" }}>
+            📋 模板库
+          </h2>
+          <span style={{
+            fontSize: 11, color: "var(--t3)",
+            background: "rgba(255,255,255,0.05)", padding: "2px 8px", borderRadius: 6,
+          }}>
             精选高转化模板
           </span>
         </div>
@@ -333,7 +344,7 @@ export default function HomePage() {
           {TEMPLATES.map((tpl) => (
             <div key={tpl.title} className="tpl-card" onClick={() => handleTemplateUse(tpl)}>
               <div className="tpl-img" style={{ background: tpl.bg }}>
-                <span style={{ fontSize: 48, opacity: 0.5 }}>{tpl.emoji}</span>
+                <span className="tpl-emoji" style={{ fontSize: 48, opacity: 0.5 }}>{tpl.emoji}</span>
                 <span className={`tpl-badge ${tpl.badge}`}>{tpl.badgeText}</span>
                 <div className="tpl-stats">
                   <span>👁 {tpl.views}</span>
@@ -346,9 +357,7 @@ export default function HomePage() {
                 <div className="tpl-foot">
                   <div className="tpl-tags">
                     {tpl.tags.map((tag) => (
-                      <span key={tag} className="tpl-tag">
-                        {tag}
-                      </span>
+                      <span key={tag} className="tpl-tag">{tag}</span>
                     ))}
                   </div>
                   <button
@@ -363,6 +372,11 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        .tool-emoji { transition: transform 0.2s; }
+        .glow-card:hover .tool-emoji { transform: scale(1.1); }
+      `}</style>
     </>
   );
 }

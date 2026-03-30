@@ -161,7 +161,8 @@ function SlotCard({ slot, selected, status, onClick }: {
         border: `1px solid ${borderColor}`,
         borderRadius: 14, padding: 16,
         cursor: status === "generating" ? "wait" : "pointer",
-        transition: "all 0.15s", position: "relative",
+        transition: "all 0.3s", position: "relative",
+        boxShadow: selected ? "0 0 0 2px var(--acc), 0 0 20px var(--acc-glow)" : status === "done" ? "0 0 0 1px rgba(34,197,94,0.4)" : "none",
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 10 }}>
@@ -296,7 +297,7 @@ export default function ProductPage() {
       <div className="product-page-wrap">
         {/* URL Input */}
         <div className="fi" style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🔗 商品链接生成</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>🔗 商品链接生成</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 20 }}>粘贴商品链接，AI 分析信息，按亚马逊 7+2 规范生成专业套图</p>
           <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>📎 商品链接</div>
@@ -370,9 +371,9 @@ export default function ProductPage() {
                   <span style={{ fontSize: 11, color: "var(--t3)" }}>📂 {product.category}</span>
                   <span style={{ fontSize: 11, color: "var(--t3)" }}>🌍 {product.targetMarket}</span>
                 </div>
-                <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, lineHeight: 1.4 }}>{product.title}</h2>
+<h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, lineHeight: 1.4, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.01em" }}>{product.title}</h2>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                  <span style={{ fontSize: 20, fontWeight: 800, color: "#f97316" }}>{product.price}</span>
+                  <span style={{ fontSize: 20, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", color: "#f97316" }}>{product.price}</span>
                   <span style={{ fontSize: 12, color: "var(--t3)", textDecoration: "line-through" }}>{product.originalPrice}</span>
                 </div>
                 <div style={{ fontSize: 11, color: "var(--t2)", padding: "8px 12px", background: "rgba(168,85,247,0.08)", borderRadius: 8, border: "1px solid rgba(168,85,247,0.2)", lineHeight: 1.5 }}>
@@ -382,7 +383,7 @@ export default function ProductPage() {
             </div>
 
             {/* Selling Points */}
-            <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 20, marginBottom: 20 }}>
+            <div className="glow-card" style={{ padding: 20, marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>✏️ 核心卖点（可编辑）</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {editingPoints.map((sp, i) => (
@@ -390,7 +391,8 @@ export default function ProductPage() {
                     <span style={{ fontSize: 12, color: "var(--acc)", fontWeight: 700, flexShrink: 0, width: 20 }}>#{i + 1}</span>
                     <input value={sp}
                       onChange={(e) => { const n = [...editingPoints]; n[i] = e.target.value; setEditingPoints(n); }}
-                      style={{ flex: 1, background: "var(--bg4)", border: "1px solid var(--bd)", borderRadius: 8, padding: "6px 12px", fontSize: 12, color: "var(--fg)", fontFamily: "inherit", outline: "none" }} />
+                      className="input-glow"
+                    style={{ flex: 1, borderRadius: 8, padding: "6px 12px", fontSize: 12 }} />
                     <button onClick={() => setEditingPoints(editingPoints.filter((_, idx) => idx !== i))}
                       style={{ width: 24, height: 24, borderRadius: 6, border: "none", background: "rgba(239,68,68,0.1)", color: "#ef4444", fontSize: 14, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
                   </div>
@@ -454,11 +456,12 @@ export default function ProductPage() {
                 <button
                   onClick={handleGenerate}
                   disabled={generating || selectedSlots.size === 0}
+                  className={generating ? "" : "btn-glow"}
                   style={{
                     padding: "12px 28px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: generating ? "wait" : "pointer",
-                    fontFamily: "inherit", border: "none",
-                    background: generating ? "var(--bd)" : "linear-gradient(135deg, var(--acc), var(--pk))",
-                    color: "#fff", opacity: selectedSlots.size === 0 ? 0.4 : 1, transition: "all 0.15s",
+                    fontFamily: "inherit",
+                    ...(generating ? { background: "var(--bd)", border: "none", color: "var(--t3)" } : { color: "#000" }),
+                    opacity: selectedSlots.size === 0 ? 0.4 : 1,
                   }}
                 >
                   {generating ? `生成中 ${progress}%...` : `生成选中图位 · ${totalCredits} 积分`}

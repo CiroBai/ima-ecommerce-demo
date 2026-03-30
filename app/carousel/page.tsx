@@ -176,7 +176,7 @@ export default function CarouselPage() {
 
       <div className="product-page-wrap">
         <div className="fi">
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🎠 轮播图设计</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>🎠 轮播图设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
             规划幻灯片叙事结构 → 单张生成 → 一键批量出图
           </p>
@@ -223,9 +223,7 @@ export default function CarouselPage() {
 
         {/* B. Slides Panel */}
         <div className="fi" style={{ marginBottom: 20 }}>
-          <div style={{
-            background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 20,
-          }}>
+          <div className="glow-card" style={{ padding: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>📋 幻灯片规划</div>

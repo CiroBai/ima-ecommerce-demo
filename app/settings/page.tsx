@@ -42,15 +42,12 @@ export default function SettingsPage() {
 
       <div style={{ padding: "24px 32px", maxWidth: 760, margin: "0 auto", width: "100%" }} className="fi">
         <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>⚙️ 设置中心</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.02em" }}>⚙️ 设置中心</h1>
           <p style={{ fontSize: 13, color: "var(--t2)" }}>管理账户、API 密钥和使用偏好</p>
         </div>
 
         {/* Account Card */}
-        <div style={{
-          background: "var(--bg3)", border: "1px solid var(--bd)",
-          borderRadius: 14, padding: "20px 24px", marginBottom: 16,
-        }}>
+        <div className="glow-card" style={{ padding: "20px 24px", marginBottom: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             账户信息
           </div>
@@ -84,10 +81,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Credits */}
-        <div style={{
-          background: "var(--bg3)", border: "1px solid var(--bd)",
-          borderRadius: 14, padding: "20px 24px", marginBottom: 16,
-        }}>
+        <div className="glow-card" style={{ padding: "20px 24px", marginBottom: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             积分管理
           </div>
@@ -141,10 +135,7 @@ export default function SettingsPage() {
         </div>
 
         {/* API Config */}
-        <div style={{
-          background: "var(--bg3)", border: "1px solid var(--bd)",
-          borderRadius: 14, padding: "20px 24px", marginBottom: 16,
-        }}>
+        <div className="glow-card" style={{ padding: "20px 24px", marginBottom: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             API 配置
           </div>
@@ -190,11 +181,13 @@ export default function SettingsPage() {
               </button>
             </div>
             <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{
-                width: 8, height: 8, borderRadius: "50%",
-                background: testResult === "fail" ? "#ef4444" : "#22c55e",
-                boxShadow: testResult === "fail" ? "0 0 6px #ef4444" : "0 0 6px #22c55e",
-              }} />
+              <div
+                className={testResult === "fail" ? "status-dot-red" : "status-dot-green"}
+                style={{
+                  width: 8, height: 8, borderRadius: "50%",
+                  background: testResult === "fail" ? "#ef4444" : "#22c55e",
+                }}
+              />
               <span style={{ fontSize: 11, color: testResult === "fail" ? "#ef4444" : "#22c55e" }}>
                 {testResult === "fail" ? "连接失败，请检查 API Key" : "已连接 · api.imastudio.com"}
               </span>
@@ -203,10 +196,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Preferences */}
-        <div style={{
-          background: "var(--bg3)", border: "1px solid var(--bd)",
-          borderRadius: 14, padding: "20px 24px", marginBottom: 16,
-        }}>
+        <div className="glow-card" style={{ padding: "20px 24px", marginBottom: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             偏好设置
           </div>
@@ -237,10 +227,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Appearance */}
-        <div style={{
-          background: "var(--bg3)", border: "1px solid var(--bd)",
-          borderRadius: 14, padding: "20px 24px", marginBottom: 20,
-        }}>
+        <div className="glow-card" style={{ padding: "20px 24px", marginBottom: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--t3)", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             外观
           </div>
@@ -289,13 +276,18 @@ export default function SettingsPage() {
         {/* Save Button */}
         <button
           onClick={handleSave}
+          className={saved ? "" : "btn-glow"}
           style={{
             width: "100%", padding: "12px",
-            background: saved ? "rgba(34,197,94,0.2)" : "linear-gradient(135deg, #f97316, #ec4899)",
-            border: saved ? "1px solid rgba(34,197,94,0.4)" : "none",
-            color: saved ? "#22c55e" : "#fff",
-            fontSize: 14, fontWeight: 700, borderRadius: 10,
-            cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+            ...(saved ? {
+              background: "rgba(34,197,94,0.2)",
+              border: "1px solid rgba(34,197,94,0.4)",
+              color: "#22c55e",
+              fontSize: 14, fontWeight: 700, borderRadius: 10,
+              cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+            } : {
+              fontSize: 14, cursor: "pointer", fontFamily: "inherit",
+            }),
           }}
         >
           {saved ? "✓ 已保存" : "保存设置"}

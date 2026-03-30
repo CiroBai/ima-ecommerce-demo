@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import AppShell from "@/components/app-shell";
 
-const inter = Inter({ subsets: ["latin"] });
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["500", "600", "700", "800"],
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
   title: "IMA Studio — AI 电商素材工厂",
@@ -18,16 +27,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className={inter.className}>
+      <body className={`${jakarta.variable} ${dmSans.variable}`}>
         <AppShell>{children}</AppShell>
         <Toaster
           position="top-right"
           theme="dark"
           toastOptions={{
             style: {
-              background: "#1c1c1f",
-              border: "1px solid #27272a",
-              color: "#fafafa",
+              background: "#12121a",
+              border: "1px solid #1e1e2e",
+              color: "#f0f0f5",
             },
           }}
         />

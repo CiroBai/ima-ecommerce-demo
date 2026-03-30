@@ -9,25 +9,21 @@ type NavItem =
 
 const NAV_ITEMS: NavItem[] = [
   { icon: "🏠", label: "首页", href: "/" },
-  // 电商套图
   { type: "divider", label: "电商套图" },
   { icon: "🔗", label: "商品链接生成", href: "/product", badge: "NEW" },
   { icon: "🎬", label: "TikTok 带货视频", href: "/tiktok-video", badge: "NEW" },
   { icon: "🔥", label: "爆款复刻", href: "/clone" },
-  // 品牌设计
   { type: "divider", label: "品牌设计" },
   { icon: "🎯", label: "品牌 Logo", href: "/branding", badge: "NEW" },
   { icon: "📸", label: "社媒海报", href: "/poster", badge: "NEW" },
   { icon: "🎠", label: "轮播图", href: "/carousel", badge: "NEW" },
   { icon: "📄", label: "宣传册", href: "/brochure", badge: "NEW" },
-  // 工具
   { type: "divider", label: "工具" },
   { icon: "✂️", label: "智能换图", href: "/smart-replace" },
   { icon: "📦", label: "批量素材", href: "/workspace" },
   { icon: "✍️", label: "AI 文案", href: "/ai-copywriting", badge: "NEW" },
   { icon: "📋", label: "批量任务", href: "/batch", badge: "NEW" },
   { icon: "🏪", label: "模板市场", href: "/templates", badge: "NEW" },
-  // 底部
   { type: "divider" },
   { icon: "📋", label: "创作记录", href: "/records" },
   { icon: "⚙️", label: "设置", href: "/settings" },
@@ -47,6 +43,7 @@ export function SidebarNav({ isOpen = false, onClose }: SidebarNavProps) {
 
   return (
     <aside className={`sidebar${isOpen ? " open" : ""}`}>
+      {/* Logo */}
       <div className="sb-logo">
         <div className="sb-logo-icon">IM</div>
         <div className="sb-logo-text">
@@ -60,18 +57,11 @@ export function SidebarNav({ isOpen = false, onClose }: SidebarNavProps) {
             return (
               <div key={`divider-${idx}`}>
                 {item.label ? (
-                  <div style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: "var(--t3)",
-                    padding: "16px 20px 4px",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                  }}>
+                  <div className="sb-section-label">
                     {item.label}
                   </div>
                 ) : (
-                  <div style={{ height: 1, background: "var(--bd)", margin: "8px 20px" }} />
+                  <div className="sb-divider" />
                 )}
               </div>
             );
@@ -87,7 +77,7 @@ export function SidebarNav({ isOpen = false, onClose }: SidebarNavProps) {
                 key={item.href}
                 style={{
                   display: "flex", alignItems: "center", gap: 8,
-                  padding: "8px 20px", opacity: 0.4, cursor: "not-allowed",
+                  padding: "8px 22px", opacity: 0.4, cursor: "not-allowed",
                   fontSize: 13,
                 }}
               >
@@ -97,8 +87,7 @@ export function SidebarNav({ isOpen = false, onClose }: SidebarNavProps) {
                   <span style={{
                     fontSize: 9, padding: "2px 6px", borderRadius: 4,
                     background: "rgba(255,255,255,0.08)",
-                    color: "var(--t3)",
-                    fontWeight: 600,
+                    color: "var(--t3)", fontWeight: 600,
                   }}>
                     {item.badge}
                   </span>
@@ -114,23 +103,11 @@ export function SidebarNav({ isOpen = false, onClose }: SidebarNavProps) {
               style={{ textDecoration: "none" }}
               onClick={handleNavClick}
             >
-              <div className={`sb-item ${isActive ? "active" : ""}`}>
+              <div className={`sb-item${isActive ? " active" : ""}`}>
                 <span>{item.icon}</span>
                 <span style={{ flex: 1 }}>{item.label}</span>
                 {item.badge && (
-                  <span style={{
-                    fontSize: 9, padding: "2px 6px", borderRadius: 4,
-                    background: item.badge === "NEW"
-                      ? "rgba(249,115,22,0.2)"
-                      : "rgba(168,85,247,0.15)",
-                    border: item.badge === "NEW"
-                      ? "1px solid rgba(249,115,22,0.4)"
-                      : "1px solid rgba(168,85,247,0.3)",
-                    color: item.badge === "NEW" ? "#f97316" : "#a855f7",
-                    fontWeight: 700,
-                  }}>
-                    {item.badge}
-                  </span>
+                  <span className="sb-badge">{item.badge}</span>
                 )}
               </div>
             </Link>

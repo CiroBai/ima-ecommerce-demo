@@ -73,7 +73,7 @@ export default function PosterPage() {
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 40px" }} className="poster-page-outer">
         <div className="fi">
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>📸 社媒海报设计</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>📸 社媒海报设计</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 28 }}>
             选择平台 → 设定目标 → 填写内容 → 一键生成高转化率海报
           </p>
