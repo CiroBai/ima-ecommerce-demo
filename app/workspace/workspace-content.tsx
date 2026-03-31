@@ -295,14 +295,7 @@ export function WorkspaceContent() {
           </div>
         </div>
 
-        {/* Amazon Plan Panel */}
-        {isAmazon && (
-          <AmazonPlanPanel
-            category={category}
-            onSelectSlot={handleSlotSelect}
-            selectedSlot={selectedSlot}
-          />
-        )}
+        {/* Amazon Plan Panel — removed: cluttered the flow between config and input */}
 
         {/* Creation Area */}
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4 mb-4">
