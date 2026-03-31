@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { FileUpload } from "@/components/file-upload";
 
 type VideoType = "unboxing" | "problem" | "howto" | "comparison" | "rhythm" | "showcase";
 type ShotSize = "特写" | "中景" | "全景" | "俯拍" | "仰拍";
 type CameraMove = "推进" | "拉远" | "平移" | "固定" | "手持跟随" | "环绕";
-type GenerationStatus = "idle" | "generating" | "done";
+type GenerationStatus = "idle" | "generating" | "done" | "error";
 
 interface StoryboardFrame {
   id: string;
@@ -18,6 +19,7 @@ interface StoryboardFrame {
   subtitle: string;
   credits: number;
   status: GenerationStatus;
+  resultUrl?: string;
 }
 
 const VIDEO_TYPES: { key: VideoType; icon: string; label: string; desc: string }[] = [
@@ -45,6 +47,19 @@ const LANGUAGES = ["中文", "English", "日本語", "한국어", "Español"];
 const STYLES = ["真实感", "卡通", "混合", "赛博朋克", "日系清新"];
 const SHOT_SIZES: ShotSize[] = ["特写", "中景", "全景", "俯拍", "仰拍"];
 const CAMERA_MOVES: CameraMove[] = ["推进", "拉远", "平移", "固定", "手持跟随", "环绕"];
+
+// Mock product data for URL parsing simulation
+const MOCK_PARSE_RESULT = {
+  name: "韩系小众设计感戒指 多巴胺彩色叠戴套装",
+  sellingPoints: [
+    "韩系小众设计 — 差异化爆款款式",
+    "多巴胺色系 — 拍照出片率超高",
+    "叠戴玩法 — 一件商品多种搭配",
+    "黄铜镀金 — 不掉色不过敏",
+    "限时特惠 — 买二送一",
+  ],
+  targetAudience: "18-28岁女性，追求个性时尚，喜欢小红书/ins风格",
+};
 
 function generateMockFrames(type: VideoType, dur: number): StoryboardFrame[] {
   const tpl: Record<VideoType, { desc: string; shot: ShotSize; cam: CameraMove; audio: string; sub: string }[]> = {
@@ -120,7 +135,31 @@ function fmtTime(sec: number): string {
   return `${Math.floor(sec / 60)}:${(sec % 60).toString().padStart(2, "0")}`;
 }
 
+function buildPrompt(frame: StoryboardFrame, productName: string, sellingPoints: string[], targetAudience: string, style: string, ratio: string): string {
+  const highlights = sellingPoints.filter((p) => p.trim()).join(", ");
+  return [
+    `TikTok e-commerce video frame for ${productName}`,
+    `Scene: ${frame.description}`,
+    `Shot: ${frame.shotSize} with ${frame.cameraMove}`,
+    `Style: ${style}, professional product video`,
+    highlights ? `Product highlights: ${highlights}` : "",
+    targetAudience ? `Target audience: ${targetAudience}` : "",
+    `Aspect ratio: ${ratio}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export default function TikTokVideoPage() {
+  // Product info state
+  const [productUrl, setProductUrl] = useState("");
+  const [productUrlParsing, setProductUrlParsing] = useState(false);
+  const [productImages, setProductImages] = useState<string[]>([]);
+  const [productName, setProductName] = useState("");
+  const [sellingPoints, setSellingPoints] = useState<string[]>(["", ""]);
+  const [targetAudience, setTargetAudience] = useState("");
+
+  // Video config state
   const [videoType, setVideoType] = useState<VideoType>("showcase");
   const [duration, setDuration] = useState(15);
   const [ratio, setRatio] = useState("9:16");
@@ -130,6 +169,39 @@ export default function TikTokVideoPage() {
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedFrames, setSelectedFrames] = useState<Set<string>>(() => new Set(generateMockFrames("showcase", 15).map((f) => f.id)));
+
+  const productNameValid = productName.trim().length > 0;
+
+  // Simulate URL parsing
+  const handleUrlParse = async () => {
+    if (!productUrl.trim()) return;
+    setProductUrlParsing(true);
+    await new Promise((r) => setTimeout(r, 1200));
+    setProductName(MOCK_PARSE_RESULT.name);
+    setSellingPoints(MOCK_PARSE_RESULT.sellingPoints);
+    setTargetAudience(MOCK_PARSE_RESULT.targetAudience);
+    setProductUrlParsing(false);
+  };
+
+  const handleAddProductImage = (url: string) => {
+    setProductImages((prev) => prev.length < 3 ? [...prev, url] : prev);
+  };
+
+  const handleRemoveProductImage = (idx: number) => {
+    setProductImages((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSellingPointChange = (idx: number, val: string) => {
+    setSellingPoints((prev) => prev.map((p, i) => (i === idx ? val : p)));
+  };
+
+  const addSellingPoint = () => {
+    if (sellingPoints.length < 5) setSellingPoints((prev) => [...prev, ""]);
+  };
+
+  const removeSellingPoint = (idx: number) => {
+    if (sellingPoints.length > 2) setSellingPoints((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const handleTypeChange = (t: VideoType) => {
     setVideoType(t);
@@ -171,15 +243,93 @@ export default function TikTokVideoPage() {
 
   const totalCredits = frames.filter((f) => selectedFrames.has(f.id)).reduce((s, f) => s + f.credits, 0);
 
+  // Real IMA API generation with concurrency control (max 3 concurrent)
   const handleGenerate = async () => {
-    setGenerating(true); setProgress(0);
+    if (!productNameValid) return;
+    setGenerating(true);
+    setProgress(0);
+
     const sel = frames.filter((f) => selectedFrames.has(f.id));
-    for (let i = 0; i < sel.length; i++) {
-      setFrames((p) => p.map((f) => (f.id === sel[i].id ? { ...f, status: "generating" } : f)));
-      await new Promise((r) => setTimeout(r, 800));
-      setFrames((p) => p.map((f) => (f.id === sel[i].id ? { ...f, status: "done" } : f)));
-      setProgress(Math.round(((i + 1) / sel.length) * 100));
-    }
+    let completed = 0;
+
+    // Reset all selected frames to idle first
+    setFrames((prev) =>
+      prev.map((f) => selectedFrames.has(f.id) ? { ...f, status: "idle", resultUrl: undefined } : f)
+    );
+
+    const generateFrame = async (frame: StoryboardFrame): Promise<void> => {
+      setFrames((prev) => prev.map((f) => f.id === frame.id ? { ...f, status: "generating" } : f));
+
+      try {
+        const prompt = buildPrompt(frame, productName, sellingPoints, targetAudience, style, ratio);
+        const hasImages = productImages.length > 0;
+
+        const body: Record<string, unknown> = {
+          prompt,
+          modelId: "doubao-seedream-4.5",
+          taskType: hasImages ? "image_to_image" : "text_to_image",
+        };
+        if (hasImages) {
+          body.inputImages = productImages;
+        }
+
+        const genResp = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const genData = await genResp.json();
+        if (!genResp.ok || !genData.taskId) throw new Error(genData.error || "生成任务创建失败");
+
+        const taskId = genData.taskId;
+
+        // Poll for result
+        let resultUrl: string | null = null;
+        for (let attempt = 0; attempt < 60; attempt++) {
+          await new Promise((r) => setTimeout(r, 3000));
+          const pollResp = await fetch("/api/poll", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ taskId }),
+          });
+          const pollData = await pollResp.json();
+          if (pollData.status === "done" && pollData.url) {
+            resultUrl = pollData.url;
+            break;
+          }
+          if (pollData.status === "error") {
+            throw new Error(pollData.error || "生成失败");
+          }
+        }
+
+        if (!resultUrl) throw new Error("生成超时，请重试");
+
+        setFrames((prev) =>
+          prev.map((f) => f.id === frame.id ? { ...f, status: "done", resultUrl } : f)
+        );
+      } catch {
+        setFrames((prev) => prev.map((f) => f.id === frame.id ? { ...f, status: "error" } : f));
+      } finally {
+        completed++;
+        setProgress(Math.round((completed / sel.length) * 100));
+      }
+    };
+
+    // Concurrency queue: max 3 concurrent
+    const queue = [...sel];
+    const running: Promise<void>[] = [];
+
+    const runNext = (): Promise<void> => {
+      if (queue.length === 0) return Promise.resolve();
+      const frame = queue.shift()!;
+      const p = generateFrame(frame).then(() => runNext());
+      return p;
+    };
+
+    const concurrency = Math.min(3, sel.length);
+    const workers = Array.from({ length: concurrency }, () => runNext());
+    await Promise.all(workers);
+
     setGenerating(false);
   };
 
@@ -203,8 +353,131 @@ export default function TikTokVideoPage() {
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 24 }}>AI 分镜规划 → 逐帧生成 → 拼接成片。选择视频类型，自动生成专业分镜脚本。</p>
         </div>
 
-        {/* Video Type */}
+        {/* ─── Product Info Block ─── */}
         <div className="fi" style={{ marginBottom: 20 }}>
+          <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 20 }}>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>📦 商品信息</div>
+              <div style={{ fontSize: 12, color: "var(--t3)" }}>填写商品信息后，AI 将结合商品卖点生成更精准的分镜内容</div>
+            </div>
+
+            {/* URL Input */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t2)", marginBottom: 6 }}>🔗 商品链接（可选）</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  value={productUrl}
+                  onChange={(e) => setProductUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleUrlParse()}
+                  placeholder="粘贴 Amazon / TikTok Shop / Shopee 商品链接..."
+                  style={{ flex: 1, background: "var(--bg4)", border: "1px solid var(--bd)", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "var(--fg)", fontFamily: "inherit", outline: "none" }}
+                />
+                <button
+                  onClick={handleUrlParse}
+                  disabled={!productUrl.trim() || productUrlParsing}
+                  style={{ padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: productUrl.trim() && !productUrlParsing ? "pointer" : "not-allowed", fontFamily: "inherit", border: "none", background: productUrl.trim() && !productUrlParsing ? "rgba(249,115,22,0.15)" : "var(--bd)", color: productUrl.trim() && !productUrlParsing ? "#f97316" : "var(--t3)", whiteSpace: "nowrap", transition: "all 0.2s" }}>
+                  {productUrlParsing ? "解析中..." : "解析"}
+                </button>
+              </div>
+            </div>
+
+            {/* Product Images */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t2)", marginBottom: 6 }}>
+                🖼️ 商品图片（最多3张，可选）
+                <span style={{ fontSize: 11, color: "var(--t3)", marginLeft: 8, fontWeight: 400 }}>上传后可用于 image-to-image 生成</span>
+              </div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {productImages.map((url, idx) => (
+                  <div key={idx} style={{ position: "relative", width: 80, height: 80, borderRadius: 10, overflow: "hidden", border: "1px solid var(--bd)", flexShrink: 0 }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt={`product-${idx}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      onClick={() => handleRemoveProductImage(idx)}
+                      style={{ position: "absolute", top: 3, right: 3, width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {productImages.length < 3 && (
+                  <div style={{ width: 80, height: 80, flexShrink: 0 }}>
+                    <FileUpload
+                      onUpload={handleAddProductImage}
+                      className=""
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Product Name */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t2)", marginBottom: 6 }}>
+                📝 商品名称 <span style={{ color: "#f97316" }}>*</span>
+              </div>
+              <input
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+                placeholder="输入商品名称（必填，用于生成分镜脚本）"
+                style={{ width: "100%", background: "var(--bg4)", border: `1px solid ${productName.trim() ? "var(--bd)" : "rgba(249,115,22,0.3)"}`, borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "var(--fg)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+              />
+              {!productName.trim() && (
+                <div style={{ fontSize: 11, color: "rgba(249,115,22,0.8)", marginTop: 4 }}>⚠️ 请填写商品名称以启用分镜生成</div>
+              )}
+            </div>
+
+            {/* Selling Points */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t2)", marginBottom: 6 }}>
+                ✨ 核心卖点 <span style={{ color: "#f97316" }}>*</span>
+                <span style={{ fontSize: 11, color: "var(--t3)", marginLeft: 8, fontWeight: 400 }}>2–5 条</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {sellingPoints.map((point, idx) => (
+                  <div key={idx} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#f97316", fontWeight: 700, flexShrink: 0 }}>
+                      {idx + 1}
+                    </div>
+                    <input
+                      value={point}
+                      onChange={(e) => handleSellingPointChange(idx, e.target.value)}
+                      placeholder={`卖点 ${idx + 1}...`}
+                      style={{ flex: 1, background: "var(--bg4)", border: "1px solid var(--bd)", borderRadius: 8, padding: "6px 10px", fontSize: 12, color: "var(--fg)", fontFamily: "inherit", outline: "none" }}
+                    />
+                    {sellingPoints.length > 2 && (
+                      <button
+                        onClick={() => removeSellingPoint(idx)}
+                        style={{ width: 24, height: 24, borderRadius: 6, border: "none", background: "rgba(239,68,68,0.1)", color: "#ef4444", fontSize: 14, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {sellingPoints.length < 5 && (
+                  <button
+                    onClick={addSellingPoint}
+                    style={{ alignSelf: "flex-start", padding: "5px 12px", borderRadius: 8, border: "1px dashed var(--bd)", background: "transparent", color: "var(--t3)", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                    + 添加卖点
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Target Audience */}
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t2)", marginBottom: 6 }}>🎯 目标受众（可选）</div>
+              <input
+                value={targetAudience}
+                onChange={(e) => setTargetAudience(e.target.value)}
+                placeholder="例：18-28岁女性，喜欢ins风格，追求个性时尚..."
+                style={{ width: "100%", background: "var(--bg4)", border: "1px solid var(--bd)", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "var(--fg)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Video Type */}
+        <div className="fi" style={{ marginBottom: 20, opacity: productNameValid ? 1 : 0.5, pointerEvents: productNameValid ? "auto" : "none", transition: "opacity 0.2s" }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>📽️ 视频类型</div>
           <div className="tiktok-video-types">
             {VIDEO_TYPES.map((vt) => {
@@ -275,7 +548,7 @@ export default function TikTokVideoPage() {
         </div>
 
         {/* Storyboard */}
-        <div className="fi" style={{ marginBottom: 20 }}>
+        <div className="fi" style={{ marginBottom: 20, opacity: productNameValid ? 1 : 0.5, pointerEvents: productNameValid ? "auto" : "none", transition: "opacity 0.2s" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <div>
               <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 2 }}>🎞️ 分镜面板</h3>
@@ -291,8 +564,8 @@ export default function TikTokVideoPage() {
             {frames.map((frame, idx) => (
               <div key={frame.id}
                 style={{
-                  background: frame.status === "done" ? "rgba(34,197,94,0.04)" : frame.status === "generating" ? "rgba(249,115,22,0.04)" : "var(--bg3)",
-                  border: `1px solid ${frame.status === "done" ? "rgba(34,197,94,0.3)" : frame.status === "generating" ? "rgba(249,115,22,0.3)" : "var(--bd)"}`,
+                  background: frame.status === "done" ? "rgba(34,197,94,0.04)" : frame.status === "generating" ? "rgba(249,115,22,0.04)" : frame.status === "error" ? "rgba(239,68,68,0.04)" : "var(--bg3)",
+                  border: `1px solid ${frame.status === "done" ? "rgba(34,197,94,0.3)" : frame.status === "generating" ? "rgba(249,115,22,0.3)" : frame.status === "error" ? "rgba(239,68,68,0.3)" : "var(--bd)"}`,
                   borderRadius: 14, padding: 16, transition: "all 0.3s",
                 }}>
                 <div style={{ display: "flex", gap: 12 }}>
@@ -329,7 +602,25 @@ export default function TikTokVideoPage() {
                       <button onClick={() => removeFrame(frame.id)}
                         style={{ width: 24, height: 24, borderRadius: 6, border: "none", background: "rgba(239,68,68,0.1)", color: "#ef4444", fontSize: 14, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
                     </div>
-                    {frame.status === "done" && (
+                    {frame.status === "generating" && (
+                      <div style={{ height: 60, borderRadius: 8, background: "rgba(249,115,22,0.06)", border: "1px dashed rgba(249,115,22,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#f97316", gap: 6 }}>
+                        <span style={{ display: "inline-block", animation: "spin 1s linear infinite" }}>⟳</span> 生成中，请稍候...
+                      </div>
+                    )}
+                    {frame.status === "error" && (
+                      <div style={{ height: 60, borderRadius: 8, background: "rgba(239,68,68,0.06)", border: "1px dashed rgba(239,68,68,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#ef4444" }}>
+                        ❌ 生成失败，可重试
+                      </div>
+                    )}
+                    {frame.status === "done" && frame.resultUrl && (
+                      <a href={frame.resultUrl} target="_blank" rel="noopener noreferrer"
+                        style={{ display: "block", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(34,197,94,0.3)", cursor: "pointer" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={frame.resultUrl} alt={`frame-${idx + 1}`}
+                          style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }} />
+                      </a>
+                    )}
+                    {frame.status === "done" && !frame.resultUrl && (
                       <div style={{ height: 60, borderRadius: 8, background: "linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.05))", border: "1px dashed rgba(34,197,94,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#22c55e" }}>
                         ✅ 帧图生成完成 — 点击查看
                       </div>
@@ -349,6 +640,11 @@ export default function TikTokVideoPage() {
         {/* Generate Actions */}
         <div className="fi">
           <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 20 }}>
+            {!productNameValid && (
+              <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", fontSize: 12, color: "rgba(249,115,22,0.9)" }}>
+                ⚠️ 请先填写商品名称
+              </div>
+            )}
             {generating && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -361,8 +657,8 @@ export default function TikTokVideoPage() {
               </div>
             )}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button onClick={handleGenerate} disabled={generating || selectedFrames.size === 0}
-                style={{ padding: "12px 28px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: generating ? "wait" : "pointer", fontFamily: "inherit", border: "none", background: generating ? "var(--bd)" : "linear-gradient(135deg, var(--acc), var(--pk))", color: "#fff", opacity: selectedFrames.size === 0 ? 0.4 : 1 }}>
+              <button onClick={handleGenerate} disabled={generating || selectedFrames.size === 0 || !productNameValid}
+                style={{ padding: "12px 28px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (generating || !productNameValid) ? "not-allowed" : "pointer", fontFamily: "inherit", border: "none", background: (generating || !productNameValid) ? "var(--bd)" : "linear-gradient(135deg, var(--acc), var(--pk))", color: "#fff", opacity: (selectedFrames.size === 0 || !productNameValid) ? 0.4 : 1 }}>
                 {generating ? `生成中 ${progress}%...` : `生成选中帧 · ${totalCredits} 积分`}
               </button>
               <button onClick={() => setSelectedFrames(selectedFrames.size === frames.length ? new Set() : new Set(frames.map((f) => f.id)))}
