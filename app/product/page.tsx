@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface MockProduct {
   platform: string;
@@ -17,7 +17,7 @@ interface MockProduct {
   persona: string;
 }
 
-type GenerationStatus = "idle" | "generating" | "done";
+type GenerationStatus = "idle" | "generating" | "done" | "error";
 type PlatformKey = "amazon" | "tiktok" | "shopee";
 
 interface ImageSlot {
@@ -28,6 +28,11 @@ interface ImageSlot {
   strategy: "text_to_image" | "image_to_image";
   credits: number;
   optional?: boolean;
+}
+
+interface SlotResult {
+  url: string;
+  watermark_url?: string;
 }
 
 const MOCK_PRODUCTS: Record<string, MockProduct> = {
@@ -140,16 +145,28 @@ function detectPlatform(url: string): PlatformKey {
   return keys[Math.floor(Math.random() * keys.length)];
 }
 
-function SlotCard({ slot, selected, status, onClick }: {
+function buildPrompt(slot: ImageSlot, product: MockProduct, sellingPoints: string[]): string {
+  const points = sellingPoints.filter(Boolean).join(", ");
+  return `${slot.type} for ${product.title}
+${product.description}
+Requirements: ${slot.purpose}
+Key selling points: ${points}
+Style: professional e-commerce photography`;
+}
+
+function SlotCard({ slot, selected, status, result, onClick }: {
   slot: ImageSlot;
   selected: boolean;
   status: GenerationStatus;
+  result?: SlotResult;
   onClick: () => void;
 }) {
   const borderColor = status === "done" ? "rgba(34,197,94,0.5)"
+    : status === "error" ? "rgba(239,68,68,0.5)"
     : status === "generating" ? "rgba(249,115,22,0.5)"
     : selected ? "rgba(249,115,22,0.4)" : "var(--bd)";
   const bgColor = status === "done" ? "rgba(34,197,94,0.05)"
+    : status === "error" ? "rgba(239,68,68,0.05)"
     : status === "generating" ? "rgba(249,115,22,0.05)"
     : selected ? "rgba(249,115,22,0.06)" : "var(--bg3)";
 
@@ -181,11 +198,11 @@ function SlotCard({ slot, selected, status, onClick }: {
         </div>
         <div style={{
           width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
-          background: status === "done" ? "#22c55e" : status === "generating" ? "#f97316" : selected ? "#f97316" : "transparent",
-          border: `1.5px solid ${status === "done" ? "#22c55e" : status === "generating" ? "#f97316" : selected ? "#f97316" : "var(--bd)"}`,
+          background: status === "done" ? "#22c55e" : status === "error" ? "#ef4444" : status === "generating" ? "#f97316" : selected ? "#f97316" : "transparent",
+          border: `1.5px solid ${status === "done" ? "#22c55e" : status === "error" ? "#ef4444" : status === "generating" ? "#f97316" : selected ? "#f97316" : "var(--bd)"}`,
           display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff",
         }}>
-          {status === "done" ? "✓" : status === "generating" ? "⟳" : selected ? "✓" : ""}
+          {status === "done" ? "✓" : status === "error" ? "✕" : status === "generating" ? "⟳" : selected ? "✓" : ""}
         </div>
       </div>
 
@@ -203,7 +220,34 @@ function SlotCard({ slot, selected, status, onClick }: {
         <span style={{ fontSize: 11, color: "var(--acc)", fontWeight: 700 }}>{slot.credits} 积分</span>
       </div>
 
-      {status === "done" && (
+      {status === "done" && result?.url && (
+        <div
+          onClick={(e) => { e.stopPropagation(); window.open(result.url, "_blank"); }}
+          style={{
+            marginTop: 10, borderRadius: 8, overflow: "hidden",
+            border: "1px solid rgba(34,197,94,0.3)", cursor: "pointer",
+            position: "relative",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={result.url}
+            alt={slot.type}
+            style={{ width: "100%", height: 120, objectFit: "cover", display: "block" }}
+          />
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0,
+            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
+            padding: "4px 8px", fontSize: 10, color: "#fff",
+            display: "flex", alignItems: "center", gap: 4,
+          }}>
+            <span>✅ 生成完成</span>
+            <span style={{ marginLeft: "auto", opacity: 0.8 }}>点击查看大图 ↗</span>
+          </div>
+        </div>
+      )}
+
+      {status === "done" && !result?.url && (
         <div style={{
           marginTop: 10, height: 80, borderRadius: 8,
           background: "linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.05))",
@@ -212,6 +256,18 @@ function SlotCard({ slot, selected, status, onClick }: {
           fontSize: 11, color: "#22c55e",
         }}>
           ✅ 生成完成 — 点击查看
+        </div>
+      )}
+
+      {status === "error" && (
+        <div style={{
+          marginTop: 10, height: 48, borderRadius: 8,
+          background: "rgba(239,68,68,0.06)",
+          border: "1px dashed rgba(239,68,68,0.3)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 11, color: "#ef4444",
+        }}>
+          ❌ 生成失败，请重试
         </div>
       )}
     </div>
@@ -225,16 +281,21 @@ export default function ProductPage() {
   const [editingPoints, setEditingPoints] = useState<string[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<Set<number>>(new Set([1, 2, 3, 4, 5, 6, 7]));
   const [slotStatus, setSlotStatus] = useState<Record<number, GenerationStatus>>({});
+  const [slotResults, setSlotResults] = useState<Record<number, SlotResult>>({});
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [activePlatform, setActivePlatform] = useState<PlatformKey>("amazon");
   const [detectedPlatform, setDetectedPlatform] = useState<PlatformKey>("amazon");
+
+  // AbortController ref to allow cancellation
+  const abortRef = useRef<AbortController | null>(null);
 
   const handleAnalyze = async () => {
     if (!url.trim()) return;
     setIsAnalyzing(true);
     setProduct(null);
     setSlotStatus({});
+    setSlotResults({});
     await new Promise((r) => setTimeout(r, 1800));
     const key = detectPlatform(url.toLowerCase());
     const p = MOCK_PRODUCTS[key] || MOCK_PRODUCTS.amazon;
@@ -250,10 +311,15 @@ export default function ProductPage() {
   const handlePlatformSwitch = (key: PlatformKey) => {
     setActivePlatform(key);
     setSlotStatus({});
+    setSlotResults({});
     const defaults = new Set(PLATFORM_CONFIG[key].slots.filter((s) => !s.optional).map((s) => s.id));
     setSelectedSlots(defaults);
     setProgress(0);
     setGenerating(false);
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
   };
 
   const toggleSlot = (id: number) => {
@@ -268,20 +334,140 @@ export default function ProductPage() {
   const totalCredits = currentSlots.filter((s) => selectedSlots.has(s.id)).reduce((sum, s) => sum + s.credits, 0);
   const doneCount = Object.values(slotStatus).filter((s) => s === "done").length;
 
+  /** Poll /api/poll until done or error. Returns result or throws. */
+  async function pollUntilDone(taskId: string, signal: AbortSignal): Promise<SlotResult> {
+    const MAX_POLLS = 60;
+    const INTERVAL_MS = 3000;
+    for (let i = 0; i < MAX_POLLS; i++) {
+      if (signal.aborted) throw new Error("aborted");
+      await new Promise((r) => setTimeout(r, INTERVAL_MS));
+      if (signal.aborted) throw new Error("aborted");
+
+      const res = await fetch("/api/poll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ taskId }),
+        signal,
+      });
+      if (!res.ok) throw new Error(`Poll HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      if (data.done) {
+        if (!data.result?.url) throw new Error("No image URL in result");
+        return { url: data.result.url, watermark_url: data.result.watermark_url };
+      }
+      // not done yet, continue polling
+    }
+    throw new Error("Timed out after 3 minutes");
+  }
+
+  /** Generate a single slot. Updates state reactively. */
+  async function generateSlot(
+    slot: ImageSlot,
+    product: MockProduct,
+    sellingPoints: string[],
+    signal: AbortSignal,
+    onStatusChange: (id: number, status: GenerationStatus) => void,
+    onResult: (id: number, result: SlotResult) => void,
+  ) {
+    onStatusChange(slot.id, "generating");
+    try {
+      const prompt = buildPrompt(slot, product, sellingPoints);
+      // image_to_image without actual uploaded image → fallback to text_to_image
+      const taskType = "text_to_image";
+
+      const genRes = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          modelId: "doubao-seedream-4.5",
+          taskType,
+          inputImages: [],
+          extraParams: {},
+        }),
+        signal,
+      });
+      if (!genRes.ok) {
+        const errData = await genRes.json().catch(() => ({}));
+        throw new Error(errData.error || `Generate HTTP ${genRes.status}`);
+      }
+      const { taskId } = await genRes.json();
+      if (!taskId) throw new Error("No taskId returned");
+
+      const result = await pollUntilDone(taskId, signal);
+      onResult(slot.id, result);
+      onStatusChange(slot.id, "done");
+    } catch (err) {
+      if (signal.aborted) return; // silent abort
+      console.error(`Slot ${slot.id} failed:`, err);
+      onStatusChange(slot.id, "error");
+    }
+  }
+
   const handleGenerate = async () => {
     if (!product || selectedSlots.size === 0) return;
+
+    // Cancel any previous run
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setGenerating(true);
     setProgress(0);
+
     const selected = currentSlots.filter((s) => selectedSlots.has(s.id));
-    const statusMap: Record<number, GenerationStatus> = {};
-    selected.forEach((s) => { statusMap[s.id] = "generating"; });
-    setSlotStatus({ ...statusMap });
-    for (let i = 0; i < selected.length; i++) {
-      await new Promise((r) => setTimeout(r, 900));
-      statusMap[selected[i].id] = "done";
-      setSlotStatus({ ...statusMap });
-      setProgress(Math.round(((i + 1) / selected.length) * 100));
+
+    // Mark all selected as generating upfront
+    setSlotStatus((prev) => {
+      const next = { ...prev };
+      selected.forEach((s) => { next[s.id] = "generating"; });
+      return next;
+    });
+
+    const CONCURRENCY = 3;
+    let completed = 0;
+    const total = selected.length;
+
+    const onStatusChange = (id: number, status: GenerationStatus) => {
+      setSlotStatus((prev) => ({ ...prev, [id]: status }));
+      if (status === "done" || status === "error") {
+        completed++;
+        setProgress(Math.round((completed / total) * 100));
+      }
+    };
+
+    const onResult = (id: number, result: SlotResult) => {
+      setSlotResults((prev) => ({ ...prev, [id]: result }));
+    };
+
+    // Process in batches of CONCURRENCY
+    for (let i = 0; i < selected.length; i += CONCURRENCY) {
+      if (controller.signal.aborted) break;
+      const batch = selected.slice(i, i + CONCURRENCY);
+      await Promise.all(
+        batch.map((slot) =>
+          generateSlot(slot, product, editingPoints, controller.signal, onStatusChange, onResult)
+        )
+      );
     }
+
+    setGenerating(false);
+  };
+
+  const handleCancel = () => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    // Mark any still-generating slots as idle
+    setSlotStatus((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((key) => {
+        if (next[Number(key)] === "generating") next[Number(key)] = "idle";
+      });
+      return next;
+    });
     setGenerating(false);
   };
 
@@ -297,7 +483,7 @@ export default function ProductPage() {
       <div className="product-page-wrap">
         {/* URL Input */}
         <div className="fi" style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>🔗 商品链接生成</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.02em", marginBottom: 6 }}>🔗 商品链接生成</h1>
           <p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 20 }}>粘贴商品链接，AI 分析信息，按亚马逊 7+2 规范生成专业套图</p>
           <div style={{ background: "var(--bg3)", border: "1px solid var(--bd)", borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, color: "var(--t3)", marginBottom: 8, fontWeight: 600 }}>📎 商品链接</div>
@@ -371,9 +557,9 @@ export default function ProductPage() {
                   <span style={{ fontSize: 11, color: "var(--t3)" }}>📂 {product.category}</span>
                   <span style={{ fontSize: 11, color: "var(--t3)" }}>🌍 {product.targetMarket}</span>
                 </div>
-<h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, lineHeight: 1.4, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.01em" }}>{product.title}</h2>
+                <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, lineHeight: 1.4, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.01em" }}>{product.title}</h2>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                  <span style={{ fontSize: 20, fontWeight: 800, fontFamily: "var(--font-display, \'Plus Jakarta Sans\', system-ui, sans-serif)", letterSpacing: "-0.02em", color: "#f97316" }}>{product.price}</span>
+                  <span style={{ fontSize: 20, fontWeight: 800, fontFamily: "var(--font-display, 'Plus Jakarta Sans', system-ui, sans-serif)", letterSpacing: "-0.02em", color: "#f97316" }}>{product.price}</span>
                   <span style={{ fontSize: 12, color: "var(--t3)", textDecoration: "line-through" }}>{product.originalPrice}</span>
                 </div>
                 <div style={{ fontSize: 11, color: "var(--t2)", padding: "8px 12px", background: "rgba(168,85,247,0.08)", borderRadius: 8, border: "1px solid rgba(168,85,247,0.2)", lineHeight: 1.5 }}>
@@ -392,7 +578,7 @@ export default function ProductPage() {
                     <input value={sp}
                       onChange={(e) => { const n = [...editingPoints]; n[i] = e.target.value; setEditingPoints(n); }}
                       className="input-glow"
-                    style={{ flex: 1, borderRadius: 8, padding: "6px 12px", fontSize: 12 }} />
+                      style={{ flex: 1, borderRadius: 8, padding: "6px 12px", fontSize: 12 }} />
                     <button onClick={() => setEditingPoints(editingPoints.filter((_, idx) => idx !== i))}
                       style={{ width: 24, height: 24, borderRadius: 6, border: "none", background: "rgba(239,68,68,0.1)", color: "#ef4444", fontSize: 14, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
                   </div>
@@ -424,6 +610,7 @@ export default function ProductPage() {
                   slot={slot}
                   selected={selectedSlots.has(slot.id)}
                   status={slotStatus[slot.id] || "idle"}
+                  result={slotResults[slot.id]}
                   onClick={() => toggleSlot(slot.id)}
                 />
               ))}
@@ -466,6 +653,17 @@ export default function ProductPage() {
                 >
                   {generating ? `生成中 ${progress}%...` : `生成选中图位 · ${totalCredits} 积分`}
                 </button>
+                {generating && (
+                  <button
+                    onClick={handleCancel}
+                    style={{
+                      padding: "12px 20px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                      fontFamily: "inherit", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ef4444",
+                    }}
+                  >
+                    取消生成
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     const all = new Set(currentSlots.map((s) => s.id));
